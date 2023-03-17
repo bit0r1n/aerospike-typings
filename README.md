@@ -1,5 +1,5 @@
 # aerospike-typings
-Since typings in [original repo](https://github.com/aerospike/aerospike-client-nodejs/blob/master/typings/index.d.ts), like why `export const Client: typeof import("client");`, it results in `object` type?? And there also a lot of any =((
+Since typings in [original repo](https://github.com/aerospike/aerospike-client-nodejs/blob/master/typings/index.d.ts) are kinda messy, like why `export const Client: typeof import("client");`, it results in `object` type?? And there also a lot of any =((
 
 ## Workaround to use it
 1. Add this repo as submodule
