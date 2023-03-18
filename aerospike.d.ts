@@ -2,8 +2,8 @@ import * as Buffer from "buffer";
 import { EventEmitter, Stream } from "stream";
 
 declare module "aerospike" {
-    type PartialAerospikeRecordValue = null | undefined | boolean | string | number | Double | BigInt | Buffer | GeoJSON;
-    type AerospikeRecordValue = PartialAerospikeRecordValue | PartialAerospikeRecordValue[] | Record<string, PartialAerospikeRecordValue>;
+    // type PartialAerospikeRecordValue = null | undefined | boolean | string | number | Double | BigInt | Buffer | GeoJSON;
+    type AerospikeRecordValue = any;
 
     type AerospikeBins = {
         [key: string]: AerospikeRecordValue
