@@ -1,4 +1,3 @@
-import * as Buffer from "buffer";
 import { EventEmitter, Stream } from "stream";
 
 declare module "aerospike" {
@@ -33,13 +32,13 @@ declare module "aerospike" {
         private sendError(message: string): void;
     }
 
-    interface IBatchResult {
+    interface IBatchResult<T extends AerospikeBins> {
         status: Status;
-        record: AerospikeRecord;
+        record: AerospikeRecord<T>;
     }
 
     class BatchCommand extends Command {
-        protected convertResult(results: AerospikeRecord[]): IBatchResult[];
+        protected convertResult<T extends AerospikeBins = AerospikeBins>(results: AerospikeRecord<T>[]): IBatchResult<T>[];
     }
 
     class ConnectCommand extends Command {
@@ -55,14 +54,14 @@ declare module "aerospike" {
 
     class ReadRecordCommand extends Command {
         constructor(client: Client, key: IKey, args: any[]);
-        public convertResult(bins: AerospikeBins, metadata: IRecordMetadata): AerospikeRecord;
+        public convertResult<T extends AerospikeBins = AerospikeBins>(bins: AerospikeBins, metadata: IRecordMetadata): AerospikeRecord<T>;
     }
 
     class StreamCommand extends Command {
         public stream: RecordStream;
         constructor(stream: RecordStream, args: any[]);
-        protected callback(error: Error, record: AerospikeRecord): boolean;
-        protected convertResult(bins: AerospikeBins, meta: IRecordMetadata, asKey: IKey): AerospikeRecord;
+        protected callback<T extends AerospikeBins = AerospikeBins>(error: Error, record: AerospikeRecord<T>): boolean;
+        protected convertResult<T extends AerospikeBins = AerospikeBins>(bins: AerospikeBins, meta: IRecordMetadata, asKey: IKey): AerospikeRecord<T>;
     }
 
     class WriteRecordCommand extends Command {
@@ -542,7 +541,7 @@ declare module "aerospike" {
         public applyAsync(key: IKey, udf: IAddonUDF, policy: BasePolicy, callback: AddonCallback): void;
         public batchExists(keys: IKey[], policy: BasePolicy, callback: AddonCallback): void;
         public batchGet(keys: IKey[], policy: BasePolicy, callback: AddonCallback): void;
-        public batchRead(records: AerospikeRecord[], policy: BasePolicy, callback: AddonCallback): void;
+        public batchRead<T extends AerospikeBins = AerospikeBins>(records: AerospikeRecord<T>[], policy: BasePolicy, callback: AddonCallback): void;
         public batchSelect(keys: IKey[], bins: string[], policy: BasePolicy, callback: AddonCallback): void;
         public close(): void;
         public connect(callback: AddonCallback): void;
@@ -560,7 +559,7 @@ declare module "aerospike" {
         public isConnected(): boolean;
         public jobInfo(jobID: number, module: string, policy: InfoPolicy, callback: AddonCallback): void;
         public operateAsync(key: IKey, operations: Operation[], meta: IRecordMetadata, policy: OperatePolicy, callback: AddonCallback): void;
-        public putAsync(key: IKey, record: AerospikeRecord, meta: IRecordMetadata, policy: WritePolicy, callback: AddonCallback): void;
+        public putAsync<T extends AerospikeBins = AerospikeBins>(key: IKey, record: AerospikeRecord<T>, meta: IRecordMetadata, policy: WritePolicy, callback: AddonCallback): void;
         public queryApply(ns: string, set: string, options: IAddonQueryOptions, policy: QueryPolicy, callback: AddonCallback): void;
         public queryAsync(ns: string, set: string, options: IAddonQueryOptions, policy: QueryPolicy, callback: AddonCallback): void;
         public queryBackground(ns: string, set: string, options: IAddonQueryOptions, policy: QueryPolicy, queryID: number, callback: AddonCallback);
@@ -631,8 +630,8 @@ declare module "aerospike" {
         public where(predicate: SindexFilterPredicate): void;
         public setSindexFilter(sindexFilter: SindexFilterPredicate): void;
         public setUdf(udfModule: string, udfFunction: string, udfArgs?: any[]): void;
-        public foreach(policy?: QueryPolicy, dataCb?: (data: AerospikeRecord) => void, errorCb?: (error: Error) => void, endCb?: () => void): RecordStream;
-        public results(policy?: QueryPolicy): Promise<AerospikeRecord[]>;
+        public foreach<T extends AerospikeBins = AerospikeBins>(policy?: QueryPolicy, dataCb?: (data: AerospikeRecord<T>) => void, errorCb?: (error: Error) => void, endCb?: () => void): RecordStream;
+        public results<T extends AerospikeBins = AerospikeBins>(policy?: QueryPolicy): Promise<AerospikeRecord<T>[]>;
         public apply(udfModule: string, udfFunction: string, udfArgs?: any[], policy?: QueryPolicy): Promise<AerospikeRecordValue>;
         public apply(udfModule: string, udfFunction: string, callback: TypedCallback<AerospikeRecordValue>): void;
         public apply(udfModule: string, udfFunction: string, udfArgs: any[], callback: TypedCallback<AerospikeRecordValue>): void;
@@ -1087,12 +1086,12 @@ declare module "aerospike" {
         public getNodes(): IAddonNode[];
         public addSeedHost(hostname: string, number?: number): void;
         public removeSeedHost(hostname: string, number?: number): void;
-        public batchExists(keys: IKey[], policy?: BatchPolicy): Promise<IBatchResult[]>;
-        public batchExists(keys: IKey[], callback: TypedCallback<IBatchResult[]>): void;
-        public batchExists(keys: IKey[], policy: BatchPolicy, callback: TypedCallback<IBatchResult[]>): void;
-        public batchGet(keys: IBatchReadRecord[], policy?: BatchPolicy): Promise<AerospikeRecord[]>;
-        public batchGet(keys: IBatchReadRecord[], callback: TypedCallback<AerospikeRecord[]>): void;
-        public batchGet(keys: IBatchReadRecord[], policy: BatchPolicy, callback: TypedCallback<AerospikeRecord[]>): void;
+        public batchExists<T extends AerospikeBins = AerospikeBins>(keys: IKey[], policy?: BatchPolicy): Promise<IBatchResult<T>[]>;
+        public batchExists<T extends AerospikeBins = AerospikeBins>(keys: IKey[], callback: TypedCallback<IBatchResult<T>[]>): void;
+        public batchExists<T extends AerospikeBins = AerospikeBins>(keys: IKey[], policy: BatchPolicy, callback: TypedCallback<IBatchResult<T>[]>): void;
+        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], policy?: BatchPolicy): Promise<AerospikeRecord<T>[]>;
+        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], callback: TypedCallback<AerospikeRecord<T>[]>): void;
+        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], policy: BatchPolicy, callback: TypedCallback<AerospikeRecord<T>[]>): void;
         public batchSelect(keys: IKey[], bins: string[], policy?: BatchPolicy): Promise<IBatchSelectEntity[]>;
         public batchSelect(keys: IKey[], bins: string[], callback: TypedCallback<IBatchSelectEntity[]>): void;
         public batchSelect(keys: IKey[], bins: string[], policy: BatchPolicy, callback: TypedCallback<IBatchSelectEntity[]>): void;
@@ -1115,8 +1114,8 @@ declare module "aerospike" {
         public apply(key: IKey, udfArgs: IAddonUDF, policy: ApplyPolicy, callback: AddonCallback): void;
         public exists(key: IKey, policy?: ReadPolicy): Promise<boolean>;
         public exists(key: IKey, policy: ReadPolicy, callback: TypedCallback<boolean>): void;
-        public get(key: IKey, policy?: ReadPolicy): Promise<AerospikeRecord>;
-        public get(key: IKey, policy: ReadPolicy, callback: TypedCallback<AerospikeRecord>): void;
+        public get<T extends AerospikeBins = AerospikeBins>(key: IKey, policy?: ReadPolicy): Promise<AerospikeRecord<T>>;
+        public get<T extends AerospikeBins = AerospikeBins>(key: IKey, policy: ReadPolicy, callback: TypedCallback<AerospikeRecord<T>>): void;
         public indexRemove(namespace: string, index: string, policy?: InfoPolicy): Promise<void>;
         public indexRemove(namespace: string, index: string, callback: TypedCallback<void>): void;
         public indexRemove(namespace: string, index: string, policy: InfoPolicy, callback: TypedCallback<void>): void;
@@ -1133,35 +1132,35 @@ declare module "aerospike" {
         public infoNode(request: string | undefined, node: IInfoNodeParam, callback: TypedCallback<string>): void;
         public infoNode(request: string | undefined, node: IInfoNodeParam, policy: InfoPolicy, callback: TypedCallback<string>): void;
         public isConnected(checkTenderErrors?: boolean): boolean;
-        public operate(key: IKey, operations: Operation[], metadata?: IRecordMetadata, policy?: OperatePolicy): Promise<AerospikeRecord>;
-        public operate(key: IKey, operations: Operation[], callback: TypedCallback<AerospikeRecord>): void;
-        public operate(key: IKey, operations: Operation[], metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord>): void;
-        public operate(key: IKey, operations: Operation[], metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord>): void;
-        public append(key: IKey, bins: AerospikeBins, metadata?: IRecordMetadata, policy?: OperatePolicy): Promise<AerospikeRecord>;
-        public append(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord>): void;
-        public append(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord>): void;
-        public append(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord>): void;
-        public prepend(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord>): void;
-        public prepend(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord>): void;
-        public prepend(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord>): void;
-        public add(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord>): void;
-        public add(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord>): void;
-        public add(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord>): void;
-        public incr(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord>): void;
-        public incr(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord>): void;
-        public incr(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord>): void;
-        public put(key: IKey, bins: AerospikeBins, meta?: IRecordMetadata, policy?: WritePolicy): Promise<AerospikeRecord>;
-        public put(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord>): void;
-        public put(key: IKey, bins: AerospikeBins, meta: IRecordMetadata, callback: TypedCallback<AerospikeRecord>): void;
-        public put(key: IKey, bins: AerospikeBins, meta: IRecordMetadata, policy: WritePolicy, callback: TypedCallback<AerospikeRecord>): void;
+        public operate<T extends AerospikeBins = AerospikeBins>(key: IKey, operations: Operation[], metadata?: IRecordMetadata, policy?: OperatePolicy): Promise<AerospikeRecord<T>>;
+        public operate<T extends AerospikeBins = AerospikeBins>(key: IKey, operations: Operation[], callback: TypedCallback<AerospikeRecord<T>>): void;
+        public operate<T extends AerospikeBins = AerospikeBins>(key: IKey, operations: Operation[], metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public operate<T extends AerospikeBins = AerospikeBins>(key: IKey, operations: Operation[], metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public append<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata?: IRecordMetadata, policy?: OperatePolicy): Promise<AerospikeRecord<T>>;
+        public append<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public append<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public append<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public prepend<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public prepend<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public prepend<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public add<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public add<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public add<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public incr<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public incr<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public incr<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, metadata: IRecordMetadata, policy: OperatePolicy, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public put<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, meta?: IRecordMetadata, policy?: WritePolicy): Promise<AerospikeRecord<T>>;
+        public put<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public put<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, meta: IRecordMetadata, callback: TypedCallback<AerospikeRecord<T>>): void;
+        public put<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: AerospikeBins, meta: IRecordMetadata, policy: WritePolicy, callback: TypedCallback<AerospikeRecord<T>>): void;
         public query(ns: string, set: string, options?: IQueryOptions): Query;
         public remove(key: IKey, policy?: RemovePolicy): Promise<IKey>;
         public remove(key: IKey, callback: TypedCallback<IKey>): void;
         public remove(key: IKey, policy: RemovePolicy, callback: TypedCallback<IKey>): void;
         public scan(ns: string, set: string, options: IScanOptions): Scan;
-        public select(key: IKey, bins: string[], policy?: ReadPolicy): Promise<AerospikeRecord>;
-        public select(key: IKey, bins: string[], callback: TypedCallback<AerospikeRecord>): void;
-        public select(key: IKey, bins: string[], policy: ReadPolicy, callback: TypedCallback<AerospikeRecord>): void;
+        public select<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: string[], policy?: ReadPolicy): Promise<AerospikeRecord<T>>;
+        public select<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: string[], callback: TypedCallback<AerospikeRecord<T>>): void;
+        public select<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: string[], policy: ReadPolicy, callback: TypedCallback<AerospikeRecord<T>>): void;
         public truncate(ns: string, set: string | null, beforeNanos: number, policy?: InfoPolicy): Promise<void>;
         public truncate(ns: string, set: string | null, beforeNanos: number, callback: TypedCallback<void>): void;
         public udfRegister(udfPath: string, udfType?: Language, policy?: InfoPolicy): Promise<Job>;
@@ -1423,18 +1422,18 @@ declare module "aerospike" {
         public background(udfModule: string, udfFunction: string, udfArgs: any[], policy: ScanPolicy, scanID: number, callback: TypedCallback<Job>): void;
         public operate(operations: Operation[], policy?: ScanPolicy, scanID?: number): Promise<Job>;
         public operate(operations: Operation[], policy: ScanPolicy, scanID: number, callback: TypedCallback<Job>): void;
-        public foreach(policy?: ScanPolicy, dataCb?: (data: AerospikeRecord) => void, errorCb?: (error: Error) => void, endCb?: () => void): RecordStream;
+        public foreach<T extends AerospikeBins = AerospikeBins>(policy?: ScanPolicy, dataCb?: (data: AerospikeRecord<T>) => void, errorCb?: (error: Error) => void, endCb?: () => void): RecordStream;
     }
 
     // exp.js
     type AerospikeExp = { op: number, [key: string]: any }[]
 
-    class AerospikeRecord {
+    class AerospikeRecord<T extends AerospikeBins> {
         public key: IKey;
         public bins: AerospikeBins;
         public ttl: number;
         public gen: number;
-        constructor(key: IKey, bins: AerospikeBins, metadata?: IRecordMetadata);
+        constructor(key: IKey, bins: T, metadata?: IRecordMetadata);
     }
 
     export interface FilterModule {
