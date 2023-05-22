@@ -125,8 +125,6 @@ declare module "aerospike" {
 
     class QueryForeachCommand extends StreamCommand { }
 
-    class QueryForeachPagesCommand extends StreamCommand { }
-
     class RemoveCommand extends WriteRecordCommand { }
 
     class ScanCommand extends StreamCommand { }
@@ -2028,7 +2026,6 @@ declare module "aerospike" {
         QueryBackground: typeof QueryBackgroundCommand;
         QueryOperate: typeof QueryOperateCommand;
         QueryForeach: typeof QueryForeachCommand;
-        QueryForeachPages: typeof QueryForeachPagesCommand;
         Remove: typeof RemoveCommand;
         Scan: typeof ScanCommand;
         ScanPages: typeof ScanPagesCommand;
