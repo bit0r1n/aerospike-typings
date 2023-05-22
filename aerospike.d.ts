@@ -21,8 +21,8 @@ declare module "aerospike" {
         private captureStackTrace(): void;
         private connected(): boolean;
         private convertError(): AerospikeError;
-        protected convertResult(arg1, arg2, arg3): any;
-        private convertResponse(err, arg1, arg2, arg3): [AerospikeError, any];
+        protected convertResult(...args): any;
+        protected convertResponse(err, ...args): [AerospikeError | null, any];
         private execute(): Promise<any> | void;
         private executeWithCallback(callback: AddonCallback): void;
         private executeAndReturnPromise(): Promise<any>;
@@ -41,15 +41,12 @@ declare module "aerospike" {
         protected convertResult<T extends AerospikeBins = AerospikeBins>(results: AerospikeRecord<T>[]): IBatchResult<T>[];
     }
 
-    class ConnectCommand extends Command {
+    class ConnectCommandBase extends Command {
         constructor(client: Client, callback: AddonCallback);
     }
 
-    class QueryBackgroundBaseCommand extends Command {
-        public queryID: number;
-        public queryObj: IQueryOptions;
-        constructor(client: Client, ns: string, set: string, queryObj: IQueryOptions, policy: IQueryPolicyProps, queryID: number, callback: AddonCallback);
-        public convertResult(): Job;
+    class ExistsCommandBase extends Command {
+        protected convertResponse(error: AerospikeError): [AerospikeError | null, boolean];
     }
 
     class ReadRecordCommand extends Command {
@@ -61,13 +58,92 @@ declare module "aerospike" {
         public stream: RecordStream;
         constructor(stream: RecordStream, args: any[]);
         protected callback<T extends AerospikeBins = AerospikeBins>(error: Error, record: AerospikeRecord<T>): boolean;
-        protected convertResult<T extends AerospikeBins = AerospikeBins>(bins: AerospikeBins, meta: IRecordMetadata, asKey: IKey): AerospikeRecord<T>;
+        protected convertResult<T extends AerospikeBins = AerospikeBins>(bins: AerospikeBins, meta: IRecordMetadata, asKey: IKey): AerospikeRecord<T> | { state: IRecordMetadata };
     }
 
     class WriteRecordCommand extends Command {
         constructor(client: Client, key: IKey, args: any[], callback: AddOperation);
         protected convertResult(): IKey;
     }
+
+    class QueryBackgroundBaseCommand extends Command {
+        public queryID: number;
+        public queryObj: IQueryOptions;
+        constructor(client: Client, ns: string, set: string, queryObj: IQueryOptions, policy: IQueryPolicyProps, queryID: number, callback: AddonCallback);
+        public convertResult(): Job;
+    }
+
+    class ApplyCommand extends Command { }
+
+    class BatchExistsCommand extends BatchCommand { }
+
+    class BatchGetCommand extends BatchCommand { }
+
+    class BatchReadCommand extends BatchCommand { }
+
+    class BatchWriteCommand extends BatchCommand { }
+
+    class BatchApplyCommand extends BatchCommand { }
+
+    class BatchRemoveCommand extends BatchCommand { }
+
+    class BatchSelectCommand extends BatchCommand { }
+
+    class ConnectCommand extends ConnectCommandBase { }
+
+    class ExistsCommand extends ExistsCommandBase { }
+
+    class GetCommand extends ReadRecordCommand { }
+
+    class IndexCreateCommand extends Command { }
+
+    class IndexRemoveCommand extends Command { }
+
+    class InfoAnyCommand extends Command { }
+
+    class InfoForeachCommand extends Command { }
+
+    class InfoHostCommand extends Command { }
+
+    class InfoNodeCommand extends Command { }
+
+    class JobInfoCommand extends Command { }
+
+    class OperateCommand extends ReadRecordCommand { }
+
+    class PutCommand extends WriteRecordCommand { }
+
+    class QueryCommand extends StreamCommand { }
+
+    class QueryPagesCommand extends StreamCommand { }
+
+    class QueryApplyCommand extends Command { }
+
+    class QueryBackgroundCommand extends QueryBackgroundBaseCommand { }
+
+    class QueryOperateCommand extends QueryBackgroundBaseCommand { }
+
+    class QueryForeachCommand extends StreamCommand { }
+
+    class QueryForeachPagesCommand extends StreamCommand { }
+
+    class RemoveCommand extends WriteRecordCommand { }
+
+    class ScanCommand extends StreamCommand { }
+
+    class ScanPagesCommand extends StreamCommand { }
+
+    class ScanBackgroundCommand extends QueryBackgroundBaseCommand { }
+
+    class ScanOperateCommand extends QueryBackgroundBaseCommand { }
+
+    class SelectCommand extends ReadRecordCommand { }
+
+    class TruncateCommand extends Command { }
+
+    class UdfRegisterCommand extends Command { }
+
+    class UdfRemoveCommand extends Command { }
 
     // C++ bindings
     enum ExpOpcodes {
@@ -623,14 +699,19 @@ declare module "aerospike" {
         public selected: string[];
         public nobins: boolean;
         public udf: IAddonUDF;
-        public ops?: Operation[]
+        private pfEnabled: boolean;
+        public paginate: boolean;
+        public maxRecords: number;
+        public queryState: number | null | undefined /* ??? */;
         constructor(client: Client, ns: string, set: string, options?: IQueryOptions);
+        public nextPage(state: number): void;
+        public hasNextPage(): boolean;
         public select(bins: string[]): void;
         public select(...bins: string[]): void;
-        public where(predicate: SindexFilterPredicate): void;
+        public where(indexFilter: SindexFilterPredicate): void;
         public setSindexFilter(sindexFilter: SindexFilterPredicate): void;
         public setUdf(udfModule: string, udfFunction: string, udfArgs?: any[]): void;
-        public foreach<T extends AerospikeBins = AerospikeBins>(policy?: IQueryPolicyProps, dataCb?: (data: AerospikeRecord<T>) => void, errorCb?: (error: Error) => void, endCb?: () => void): RecordStream;
+        public foreach<T extends AerospikeBins = AerospikeBins>(policy?: IQueryPolicyProps, dataCb?: (data: AerospikeRecord<T>) => void, errorCb?: (error: Error) => void, endCb?: (queryState?: number) => void): RecordStream;
         public results<T extends AerospikeBins = AerospikeBins>(policy?: IQueryPolicyProps): Promise<AerospikeRecord<T>[]>;
         public apply(udfModule: string, udfFunction: string, udfArgs?: any[], policy?: IQueryPolicyProps): Promise<AerospikeRecordValue>;
         public apply(udfModule: string, udfFunction: string, callback: TypedCallback<AerospikeRecordValue>): void;
@@ -1403,16 +1484,25 @@ declare module "aerospike" {
         concurrent?: boolean;
     }
 
+    interface IScanState {
+        bytes: number[];
+    }
+
     class Scan {
         public client: Client;
         public ns: string;
         public set: string;
-        public selected?: string[];
-        public nobins?: boolean;
-        public concurrent?: boolean;
+        public selected: string[] | undefined;
+        public nobins: boolean | undefined;
+        public concurrent: boolean | undefined;
+        private pfEnabled: boolean;
+        public paginate: boolean | undefined;
+        public scanState: IScanState | null | undefined;
         public udf?: IAddonUDF;
         public ops?: Operation[];
         constructor(client: Client, ns: string, set: string, options?: IScanOptions);
+        public nextPage(state: IScanState): void;
+        public hasNextPage(): boolean;
         public select(bins: string[]): void;
         public select(...bins: string[]): void;
         public background(udfModule: string, udfFunction: string, udfArgs?: any[], policy?: IScanPolicyProps, scanID?: number): Promise<Job>;
@@ -1422,7 +1512,8 @@ declare module "aerospike" {
         public background(udfModule: string, udfFunction: string, udfArgs: any[], policy: IScanPolicyProps, scanID: number, callback: TypedCallback<Job>): void;
         public operate(operations: Operation[], policy?: IScanPolicyProps, scanID?: number): Promise<Job>;
         public operate(operations: Operation[], policy: IScanPolicyProps, scanID: number, callback: TypedCallback<Job>): void;
-        public foreach<T extends AerospikeBins = AerospikeBins>(policy?: IScanPolicyProps, dataCb?: (data: AerospikeRecord<T>) => void, errorCb?: (error: Error) => void, endCb?: () => void): RecordStream;
+        public foreach<T extends AerospikeBins = AerospikeBins>(policy?: IScanPolicyProps, dataCb?: (data: AerospikeRecord<T>) => void, errorCb?: (error: Error) => void, endCb?: (scanState?: IScanState) => void): RecordStream;
+        public results<T extends AerospikeBins = AerospikeBins>(policy?: IScanPolicyProps): Promise<AerospikeRecord<T>[]>;
     }
 
     // exp.js
@@ -1904,6 +1995,45 @@ declare module "aerospike" {
     interface ILogInfo {
         level?: LogLevel;
         file?: number;
+    }
+
+    interface Commands {
+        Apply: typeof ApplyCommand;
+        BatchExists: typeof BatchExistsCommand;
+        BatchGet: typeof BatchGetCommand;
+        BatchRead: typeof BatchReadCommand;
+        BatchWrite: typeof BatchWriteCommand;
+        BatchApply: typeof BatchApplyCommand;
+        BatchRemove: typeof BatchRemoveCommand;
+        BatchSelect: typeof BatchSelectCommand;
+        Connect: typeof ConnectCommand;
+        Exists: typeof ExistsCommand;
+        Get: typeof GetCommand;
+        IndexCreate: typeof IndexCreateCommand;
+        IndexRemove: typeof IndexRemoveCommand;
+        InfoAny: typeof InfoAnyCommand;
+        InfoForeach: typeof InfoForeachCommand;
+        InfoHost: typeof InfoHostCommand;
+        InfoNode: typeof InfoNodeCommand;
+        JobInfo: typeof JobInfoCommand;
+        Operate: typeof OperateCommand;
+        Put: typeof PutCommand;
+        Query: typeof QueryCommand;
+        QueryPages: typeof QueryPagesCommand;
+        QueryApply: typeof QueryApplyCommand;
+        QueryBackground: typeof QueryBackgroundCommand;
+        QueryOperate: typeof QueryOperateCommand;
+        QueryForeach: typeof QueryForeachCommand;
+        QueryForeachPages: typeof QueryForeachPagesCommand;
+        Remove: typeof RemoveCommand;
+        Scan: typeof ScanCommand;
+        ScanPages: typeof ScanPagesCommand;
+        ScanBackground: typeof ScanBackgroundCommand;
+        ScanOperate: typeof ScanOperateCommand;
+        Select: typeof SelectCommand;
+        Truncate: typeof TruncateCommand;
+        UdfRegister: typeof UdfRegisterCommand;
+        UdfRemove: typeof UdfRemoveCommand;
     }
 
     export const filter: FilterModule;
