@@ -1428,7 +1428,7 @@ declare module "aerospike" {
     // exp.js
     type AerospikeExp = { op: number, [key: string]: any }[]
 
-    class AerospikeRecord<T extends AerospikeBins> {
+    class AerospikeRecord<T extends AerospikeBins = AerospikeBins> {
         public key: IKey;
         public bins: AerospikeBins;
         public ttl: number;
