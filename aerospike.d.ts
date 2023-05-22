@@ -689,6 +689,8 @@ declare module "aerospike" {
         filters?: SindexFilterPredicate[];
         select?: string[];
         nobins?: boolean;
+        paginate?: boolean;
+        maxRecords?: number;
     }
 
     class Query {
@@ -1483,6 +1485,7 @@ declare module "aerospike" {
         select?: string[];
         nobins?: boolean;
         concurrent?: boolean;
+        paginate?: boolean;
     }
 
     interface IScanState {
