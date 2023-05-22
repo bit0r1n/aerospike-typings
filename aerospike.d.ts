@@ -1430,7 +1430,7 @@ declare module "aerospike" {
 
     class AerospikeRecord<T extends AerospikeBins = AerospikeBins> {
         public key: IKey;
-        public bins: AerospikeBins;
+        public bins: T;
         public ttl: number;
         public gen: number;
         constructor(key: IKey, bins: T, metadata?: IRecordMetadata);
