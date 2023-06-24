@@ -617,6 +617,8 @@ declare module "aerospike" {
         public batchGet(keys: IKey[], policy: BasePolicy, callback: AddonCallback): void;
         public batchRead<T extends AerospikeBins = AerospikeBins>(records: AerospikeRecord<T>[], policy: BasePolicy, callback: AddonCallback): void;
         public batchSelect(keys: IKey[], bins: string[], policy: BasePolicy, callback: AddonCallback): void;
+        public contextFromBase64(context: { context: string }): [number, number][];
+        public contextToBase64(context: { context: CdtContext }): string;
         public close(): void;
         public connect(callback: AddonCallback): void;
         public existsAsync(key: IKey, policy: BasePolicy, callback: AddonCallback): void;
@@ -624,7 +626,7 @@ declare module "aerospike" {
         public getNodes(): IAddonNode[];
         public getStats(): IAddonStats;
         public hasPendingAsyncCommands(): boolean;
-        public indexCreate(ns: string, set: string, bin: string, indexName: string, indexType: IndexType, indexDataType: IndexDataType, policy: IInfoPolicyProps, callback: AddonCallback): void;
+        public indexCreate(ns: string, set: string, bin: string, indexName: string, indexType: IndexType, indexDataType: IndexDataType, context: CdtContext, policy: IInfoPolicyProps, callback: AddonCallback): void;
         public indexRemove(ns: string, indexName: string, policy: IInfoPolicyProps, callback: AddonCallback): void;
         public infoAny(request: string, policy: IInfoPolicyProps, callback: AddonCallback): void;
         public infoForeach(request: string, policy: IInfoPolicyProps, callback: AddonCallback): void;
@@ -657,27 +659,29 @@ declare module "aerospike" {
             bin: string,
             dataType: IndexDataType,
             indexType: IndexType,
+            context: CdtContext,
             props?: Record<string, any>
         );
         public predicate: Predicates;
         public bin: string;
         public datatype: IndexDataType;
+        public context: CdtContext;
         public type: IndexType;
     }
 
     class EqualPredicate extends SindexFilterPredicate {
-        constructor(bin: string, value: string | number, dataType: IndexDataType, indexType: IndexType);
+        constructor(bin: string, value: string | number, dataType: IndexDataType, indexType: IndexType, context: CdtContext);
         public val: string | number;
     }
 
     class RangePredicate extends SindexFilterPredicate {
-        constructor(bin: string, min: number, max: number, dataType: IndexDataType, indexType: IndexType);
+        constructor(bin: string, min: number, max: number, dataType: IndexDataType, indexType: IndexType, context: CdtContext);
         public min: number;
         public max: number;
     }
 
     class GeoPredicate extends SindexFilterPredicate {
-        constructor (bin: string, value: GeoJSON, indexType: IndexType);
+        constructor (bin: string, value: GeoJSON, indexType: IndexType, context: CdtContext);
         public val: GeoJSON;
     }
 
@@ -965,12 +969,14 @@ declare module "aerospike" {
     interface IQueryPolicyProps extends IBasePolicyProps {
         deserialize?: boolean;
         failOnClusterChange?: boolean;
+        replica?: PolicyReplica;
     }
 
     export class QueryPolicy extends BasePolicy implements IQueryPolicyProps {
         public deserialize?: boolean;
         public failOnClusterChange?: boolean;
         public filterExpression?: AerospikeExp;
+        public replica?: PolicyReplica;
         constructor(props?: IQueryPolicyProps);
     }
 
@@ -1012,12 +1018,14 @@ declare module "aerospike" {
         durableDelete?: boolean;
         recordsPerSecond?: number;
         maxRecords?: number;
+        replica?: PolicyReplica;
     }
 
     export class ScanPolicy extends BasePolicy implements IScanPolicyProps {
         public durableDelete?: boolean;
         public recordsPerSecond?: number;
         public maxRecords?: number; // server version >= 4.9, so probably it should be optional
+        public replica?: PolicyReplica;
         constructor(props?: IScanPolicyProps);
     }
 
@@ -1158,6 +1166,20 @@ declare module "aerospike" {
         name: string;
     }
 
+    interface IBatchRecord {
+        type: batchType;
+        key: IKey;
+        policy?: BatchReadPolicy;
+        ops?: Operation[];
+        bins?: string[];
+        readAllBins?: boolean;
+    }
+
+    interface IBatchResult<T extends AerospikeBins = AerospikeBins> {
+        status: Status;
+        record: AerospikeRecord<T>;
+    }
+
     export class Client extends EventEmitter {
         public config: Config;
         private as_client: AddonAerospikeClient;
@@ -1167,16 +1189,32 @@ declare module "aerospike" {
         private asExec(cmd: string, args?: any): any;
         public getNodes(): IAddonNode[];
         public addSeedHost(hostname: string, number?: number): void;
+        public contextToBase64(context: CdtContext): string;
+        public contextFromBase64(serializedContext: string): CdtContext;
         public removeSeedHost(hostname: string, number?: number): void;
-        public batchExists<T extends AerospikeBins = AerospikeBins>(keys: IKey[], policy?: IBatchPolicyProps): Promise<IBatchResult<T>[]>;
-        public batchExists<T extends AerospikeBins = AerospikeBins>(keys: IKey[], callback: TypedCallback<IBatchResult<T>[]>): void;
-        public batchExists<T extends AerospikeBins = AerospikeBins>(keys: IKey[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchResult<T>[]>): void;
-        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], policy?: IBatchPolicyProps): Promise<AerospikeRecord<T>[]>;
-        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], callback: TypedCallback<AerospikeRecord<T>[]>): void;
-        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], policy: IBatchPolicyProps, callback: TypedCallback<AerospikeRecord<T>[]>): void;
-        public batchSelect(keys: IKey[], bins: string[], policy?: IBatchPolicyProps): Promise<IBatchSelectEntity[]>;
-        public batchSelect(keys: IKey[], bins: string[], callback: TypedCallback<IBatchSelectEntity[]>): void;
-        public batchSelect(keys: IKey[], bins: string[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchSelectEntity[]>): void;
+        public batchExists(keys: IKey[], policy?: IBatchPolicyProps): Promise<IBatchResult[]>;
+        public batchExists(keys: IKey[], callback: TypedCallback<IBatchResult[]>): void;
+        public batchExists(keys: IKey[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], policy?: IBatchPolicyProps): Promise<IBatchResult<T>[]>;
+        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], callback: TypedCallback<IBatchResult<T>[]>): void;
+        public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IBatchReadRecord[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchResult<T>[]>): void;
+        public batchRead(records: Omit<IBatchRecord[], "type">, policy?: IBatchReadPolicyProps): Promise<IBatchResult[]>;
+        public batchRead(records: Omit<IBatchRecord[], "type">, callback: TypedCallback<IBatchResult[]>): void;
+        public batchRead(records: Omit<IBatchRecord[], "type">, policy: IBatchReadPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchWrite(records: IBatchRecord[], policy?: IBatchWritePolicyProps): Promise<IBatchResult[]>;
+        public batchWrite(records: IBatchRecord[], callback: TypedCallback<IBatchResult[]>): void;
+        public batchWrite(records: IBatchRecord[], policy: IBatchReadPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchApply(records: IKey[], udf: IAddonUDF, batchPolicy?: IBatchPolicyProps, batchApplyPolicy?: IBatchApplyPolicyProps): Promise<IBatchResult[]>;
+        public batchApply(records: IKey[], udf: IAddonUDF, callback: TypedCallback<IBatchResult[]>): void;
+        public batchApply(records: IKey[], udf: IAddonUDF, batchPolicy: IBatchPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchApply(records: IKey[], udf: IAddonUDF, batchPolicy: IBatchPolicyProps, batchApplyPolicy: IBatchApplyPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchRemove(records: IKey[], batchPolicy?: IBatchPolicyProps, batchRemovePolicy?: IBatchRemovePolicyProps): Promise<IBatchResult[]>;
+        public batchRemove(records: IKey[], callback: TypedCallback<IBatchResult[]>): void;
+        public batchRemove(records: IKey[], batchPolicy: IBatchPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchRemove(records: IKey[], batchPolicy: IBatchPolicyProps, batchRemovePolicy: IBatchRemovePolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], policy?: IBatchPolicyProps): Promise<IBatchResult<T>[]>;
+        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], callback: TypedCallback<IBatchResult<T>[]>): void;
+        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchResult<T>[]>): void;
         public close(releaseEventLoop?: boolean): void;
         public connect(callback?: TypedCallback<Client>): Promise<Client>;
         public createIndex(options: IIndexOptions, policy?: IInfoPolicyProps): Promise<IndexJob>;
@@ -1521,9 +1559,9 @@ declare module "aerospike" {
     // exp.js
     type AerospikeExp = { op: number, [key: string]: any }[]
 
-    class AerospikeRecord<T extends AerospikeBins = AerospikeBins> {
+    class AerospikeRecord<T extends AerospikeBins> {
         public key: IKey;
-        public bins: T;
+        public bins: AerospikeBins;
         public ttl: number;
         public gen: number;
         constructor(key: IKey, bins: T, metadata?: IRecordMetadata);
@@ -1531,13 +1569,13 @@ declare module "aerospike" {
 
     export interface FilterModule {
         SindexFilterPredicate: typeof SindexFilterPredicate,
-        range(bin: string, min: number, max: number, indexType?: IndexType): RangePredicate;
+        range(bin: string, min: number, max: number, indexType?: IndexType, context?: CdtContext): RangePredicate;
         equal(bin: string, value: string): EqualPredicate;
-        contains(bin: string, value: string | number, indexType?: IndexType): EqualPredicate;
-        geoWithinGeoJSONRegion(bin: string, value: GeoJSON, indexType?: IndexType): GeoPredicate;
-        geoContainsGeoJSONPoint(bin: string, value: GeoJSON, indexType?: IndexType): GeoPredicate;
-        geoWithinRadius(bin: string, lng: number, lat: number, radius: number, indexType?: IndexType): GeoPredicate;
-        geoContainsPoint(bin: string, lng: number, lat: number, indexType?: IndexType): GeoPredicate;
+        contains(bin: string, value: string | number, indexType?: IndexType, context?: CdtContext): EqualPredicate;
+        geoWithinGeoJSONRegion(bin: string, value: GeoJSON, indexType?: IndexType, context?: CdtContext): GeoPredicate;
+        geoContainsGeoJSONPoint(bin: string, value: GeoJSON, indexType?: IndexType, context?: CdtContext): GeoPredicate;
+        geoWithinRadius(bin: string, lng: number, lat: number, radius: number, indexType?: IndexType, context?: CdtContext): GeoPredicate;
+        geoContainsPoint(bin: string, lng: number, lat: number, indexType?: IndexType, context?: CdtContext): GeoPredicate;
     }
 
     export interface ListsModule {
