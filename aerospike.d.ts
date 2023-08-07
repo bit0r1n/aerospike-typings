@@ -89,6 +89,8 @@ declare module "aerospike" {
 
     class BatchSelectCommand extends BatchCommand { }
 
+    class ChangePasswordCommand extends Command { }
+
     class ConnectCommand extends ConnectCommandBase { }
 
     class ExistsCommand extends ExistsCommandBase { }
@@ -111,6 +113,10 @@ declare module "aerospike" {
 
     class OperateCommand extends ReadRecordCommand { }
 
+    class PrivilegeGrantCommand extends Command { }
+
+    class PrivilegeRevokeCommand extends Command { }
+
     class PutCommand extends WriteRecordCommand { }
 
     class QueryCommand extends StreamCommand { }
@@ -125,7 +131,27 @@ declare module "aerospike" {
 
     class QueryForeachCommand extends StreamCommand { }
 
+    class QueryRoleCommand extends Command { }
+
+    class QueryRolesCommand extends Command { }
+
+    class QueryUserCommand extends Command { }
+
+    class QueryUsersCommand extends Command { }
+
     class RemoveCommand extends WriteRecordCommand { }
+
+    class RoleCreateCommand extends Command { }
+
+    class RoleDropCommand extends Command { }
+
+    class RoleGrantCommand extends Command { }
+
+    class RoleRevokeCommand extends Command { }
+
+    class RoleSetWhitelistCommand extends Command { }
+
+    class RoleSetQuotasCommand extends Command { }
 
     class ScanCommand extends StreamCommand { }
 
@@ -142,6 +168,10 @@ declare module "aerospike" {
     class UdfRegisterCommand extends Command { }
 
     class UdfRemoveCommand extends Command { }
+
+    class UserCreateCommand extends Command { }
+
+    class UserDropCommand extends Command { }
 
     // C++ bindings
     enum ExpOpcodes {
