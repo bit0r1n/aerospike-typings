@@ -560,6 +560,9 @@ declare module "aerospike" {
         AEROSPIKE_INVALID_ROLE = 70,
         AEROSPIKE_ROLE_ALREADY_EXISTS,
         AEROSPIKE_INVALID_PRIVILEGE,
+        AEROSPIKE_INVALID_WHITELIST,
+        AEROSPIKE_QUOTAS_NOT_ENABLED,
+        AEROSPIKE_INVALID_QUOTA,
         AEROSPIKE_NOT_AUTHENTICATED = 80,
         AEROSPIKE_ROLE_VIOLATION,
         AEROSPIKE_ERR_UDF = 100,
@@ -1863,6 +1866,9 @@ declare module "aerospike" {
         INVALID_ROLE: Status;
         ROLE_ALREADY_EXISTS: Status;
         INVALID_PRIVILEGE: Status;
+        INVALID_WHITELIST: Status;
+        QUOTAS_NOT_ENABLED: Status;
+        INVALID_QUOTA: Status;
         NOT_AUTHENTICATED: Status;
         ROLE_VIOLATION: Status;
         ERR_UDF: Status;
