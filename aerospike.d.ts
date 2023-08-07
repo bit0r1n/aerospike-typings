@@ -964,6 +964,15 @@ declare module "aerospike" {
         constructor(props?: IInfoPolicyProps);
     }
 
+    interface IAdminPolicyProps {
+        timeout?: number;
+    }
+
+    class AdminPolicy implements IAdminPolicyProps {
+        public timeout?: number;
+        constructor(props?: IAdminPolicyProps);
+    }
+
     interface IListPolicyProps extends IBasePolicyProps {
         order?: ListOrder;
         writeFlags?: ListWriteFlags;
@@ -1783,7 +1792,7 @@ declare module "aerospike" {
         Context: typeof CdtContext;
     }
 
-    type AnyPolicy = BasePolicy | ApplyPolicy | BatchPolicy | OperatePolicy | QueryPolicy | ReadPolicy | RemovePolicy | ScanPolicy | WritePolicy | BatchReadPolicy | BatchRemovePolicy | BatchWritePolicy | BatchApplyPolicy | CommandQueuePolicy | HLLPolicy | InfoPolicy | ListPolicy | MapPolicy;
+    type AnyPolicy = BasePolicy | ApplyPolicy | BatchPolicy | OperatePolicy | QueryPolicy | ReadPolicy | RemovePolicy | ScanPolicy | WritePolicy | BatchReadPolicy | BatchRemovePolicy | BatchWritePolicy | BatchApplyPolicy | CommandQueuePolicy | HLLPolicy | InfoPolicy | AdminPolicy | ListPolicy | MapPolicy;
 
     export interface PolicyModule {
         gen: typeof PolicyGen;
@@ -1800,6 +1809,7 @@ declare module "aerospike" {
         BatchWritePolicy: typeof BatchWritePolicy;
         CommandQueuePolicy: typeof CommandQueuePolicy;
         InfoPolicy: typeof InfoPolicy;
+        AdminPolicy: typeof AdminPolicy;
         ListPolicy: typeof ListPolicy;
         MapPolicy: typeof MapPolicy;
         OperatePolicy: typeof OperatePolicy;
