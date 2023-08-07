@@ -937,7 +937,7 @@ declare module "aerospike" {
         queueInitialCapacity?: number;
     }
 
-    class CommandQueuePolicy extends BasePolicy implements ICommandQueuePolicyProps {
+    export class CommandQueuePolicy extends BasePolicy implements ICommandQueuePolicyProps {
         public maxCommandsInProcess?: number;
         public maxCommandsInQueue?: number;
         public queueInitialCapacity?: number;
@@ -958,7 +958,7 @@ declare module "aerospike" {
         checkBounds?: boolean;
     }
 
-    class InfoPolicy extends BasePolicy implements IInfoPolicyProps {
+    export class InfoPolicy extends BasePolicy implements IInfoPolicyProps {
         public sendAsIs?: boolean;
         public checkBounds?: boolean;
         constructor(props?: IInfoPolicyProps);
@@ -968,7 +968,7 @@ declare module "aerospike" {
         timeout?: number;
     }
 
-    class AdminPolicy implements IAdminPolicyProps {
+    export class AdminPolicy implements IAdminPolicyProps {
         public timeout?: number;
         constructor(props?: IAdminPolicyProps);
     }
@@ -978,7 +978,7 @@ declare module "aerospike" {
         writeFlags?: ListWriteFlags;
     }
 
-    class ListPolicy extends BasePolicy implements IListPolicyProps {
+    export class ListPolicy extends BasePolicy implements IListPolicyProps {
         public order?: ListOrder;
         public writeFlags?: ListWriteFlags;
         constructor(props?: IListPolicyProps);
@@ -990,7 +990,7 @@ declare module "aerospike" {
         writeFlags?: MapsWriteFlags;
     }
 
-    class MapPolicy extends BasePolicy implements IMapPolicyProps {
+    export class MapPolicy extends BasePolicy implements IMapPolicyProps {
         public order?: MapsOrder;
         public writeMode?: MapsWriteMode;
         public writeFlags?: MapsWriteFlags;
@@ -1665,6 +1665,13 @@ declare module "aerospike" {
         public set: string;
     }
 
+    // admin.js
+    interface AdminModule {
+        User: typeof User;
+        Role: typeof Role;
+        Privilege: typeof Privilege;
+    }
+
     class AerospikeRecord<T extends AerospikeBins = AerospikeBins> {
         public key: IKey;
         public bins: T;
@@ -2193,6 +2200,8 @@ declare module "aerospike" {
         ICASE,
         NEWLINE
     }
+    export const info: InfoModule;
+    export const admin: AdminModule;
     export const lists: ListsModule
     export const hll: HLLModule;
     export const maps: MapsModule;
@@ -2225,4 +2234,5 @@ declare module "aerospike" {
         BATCH_APPLY,
         BATCH_REMOVE
     }
+    export const priviledgeCode: typeof PrivilegeCode;
 }
