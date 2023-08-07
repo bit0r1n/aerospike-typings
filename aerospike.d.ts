@@ -1247,6 +1247,21 @@ declare module "aerospike" {
         public addSeedHost(hostname: string, number?: number): void;
         public contextToBase64(context: CdtContext): string;
         public contextFromBase64(serializedContext: string): CdtContext;
+        public changePassword(user: string, password: string, policy?: IAdminPolicyProps): void;
+        public createUser(user: string, password: string, roles?: string[], policy?: IAdminPolicyProps): void;
+        public createRole(roleName: string, privileges: Privilege[], policy?: IAdminPolicyProps, whitelist?: string[], readQuota?: number, writeQuota?: number): void;
+        public dropRole(roleName: string, policy?: IAdminPolicyProps): void;
+        public dropUser(user: string, policy?: IAdminPolicyProps): void;
+        public grantPrivileges(roleName: string, privileges: Privilege[], policy?: IAdminPolicyProps): void;
+        public grantRoles(user: string, roles: string[], policy?: IAdminPolicyProps): void;
+        public queryRole(roleName: string, policy?: IAdminPolicyProps): Promise<Role>;
+        public queryRoles(policy?: IAdminPolicyProps): Promise<Role[]>;
+        public queryUser(user: string, policy?: IAdminPolicyProps): Promise<User>;
+        public queryUsers(policy?: IAdminPolicyProps): Promise<User[]>;
+        public revokePrivileges(roleName: string, privileges: Privilege[], policy?: IAdminPolicyProps): void;
+        public revokeRoles(user: string, roles: string[], policy?: IAdminPolicyProps): void;
+        public setQuotas(roleName: string, readQuota: number, writeQuota: number, policy?: IAdminPolicyProps): void;
+        public setWhitelist(roleName: string, whitelist: string[], policy?: IAdminPolicyProps): void;
         public removeSeedHost(hostname: string, number?: number): void;
         public batchExists(keys: IKey[], policy?: IBatchPolicyProps): Promise<IBatchResult[]>;
         public batchExists(keys: IKey[], callback: TypedCallback<IBatchResult[]>): void;
@@ -1658,7 +1673,7 @@ declare module "aerospike" {
     }
 
     class Privilege {
-        constructor(code: PrivilegeCode, options)
+        constructor(code: PrivilegeCode, options: IPrivilegeOptions)
         options: Record<string, any>;
         public code: PrivilegeCode;
         public namespace: string;
