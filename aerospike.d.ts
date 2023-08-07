@@ -582,6 +582,19 @@ declare module "aerospike" {
         AEROSPIKE_ERR_LUA_FILE_NOT_FOUND
     }
 
+    enum PrivilegeCode {
+        USER_ADMIN = 0,
+        SYS_ADMIN = 1,
+        DATA_ADMIN = 2,
+        UDF_ADMIN = 3,
+        SINDEX_ADMIN = 4,
+        READ = 10,
+        READ_WRITE = 11,
+        READ_WRITE_UDF = 12,
+        WRITE = 13,
+        TRUNCATE = 14
+    }
+
     interface IAddonUDF {
         module: string;
         funcname: string;
@@ -1588,6 +1601,55 @@ declare module "aerospike" {
 
     // exp.js
     type AerospikeExp = { op: number, [key: string]: any }[]
+
+    // user.js
+    interface IUserOptions {
+        connsInUse?: number;
+        name?: string;
+        readInfo?: number[];
+        writeInfo?: number[];
+        roles?: string[];
+    }
+
+    class User {
+        constructor(options: IUserOptions);
+        public connsInUse: number;
+        public name: string;
+        public readInfo: number[];
+        public writeInfo: number[];
+        public roles: string[];
+    }
+
+    // role.js
+    interface IRoleOptions {
+        name?: string;
+        readQuota?: number;
+        writeQuota?: number;
+        whitelist?: string[];
+        privileges?: Privilege[];
+    }
+
+    class Role {
+        public name: string;
+        public readQuota: number;
+        public writeQuota: number;
+        public whitelist: string[];
+        public privileges: Privilege[];
+    }
+
+    // privilege.js
+    interface IPrivilegeOptions {
+        namespace?: string;
+        set?: string;
+    }
+
+    class Privilege {
+        constructor(code: PrivilegeCode, options)
+        options: Record<string, any>;
+        public code: PrivilegeCode;
+        public namespace: string;
+        public set: string;
+    }
 
     class AerospikeRecord<T extends AerospikeBins = AerospikeBins> {
         public key: IKey;
