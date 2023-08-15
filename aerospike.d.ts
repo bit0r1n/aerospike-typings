@@ -739,6 +739,7 @@ declare module "aerospike" {
         nobins?: boolean;
         paginate?: boolean;
         maxRecords?: number;
+        ttl?: number;
     }
 
     class Query {
@@ -754,7 +755,7 @@ declare module "aerospike" {
         public paginate: boolean | undefined;
         public maxRecords: number | undefined;
         public queryState: number | null | undefined /* ??? */;
-        public ttl: TTL | undefined; // TODO: not appeared in construtor options, default NAMESPACE_DEFAULT
+        public ttl: number | undefined;
         constructor(client: Client, ns: string, set: string, options?: IQueryOptions);
         public nextPage(state: number): void;
         public hasNextPage(): boolean;
@@ -1593,6 +1594,7 @@ declare module "aerospike" {
         nobins?: boolean;
         concurrent?: boolean;
         paginate?: boolean;
+        ttl?: number;
     }
 
     interface IScanState {
@@ -1609,7 +1611,7 @@ declare module "aerospike" {
         private pfEnabled: boolean;
         public paginate: boolean | undefined;
         public scanState: IScanState | null | undefined;
-        public ttl: TTL | undefined; // TODO: not appeared in construtor options, default NAMESPACE_DEFAULT
+        public ttl: number | undefined;
         public udf?: IAddonUDF;
         public ops?: Operation[];
         constructor(client: Client, ns: string, set: string, options?: IScanOptions);
