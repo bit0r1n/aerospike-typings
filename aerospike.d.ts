@@ -89,6 +89,8 @@ declare module "aerospike" {
 
     class BatchSelectCommand extends BatchCommand { }
 
+    class ChangePasswordCommand extends Command { }
+
     class ConnectCommand extends ConnectCommandBase { }
 
     class ExistsCommand extends ExistsCommandBase { }
@@ -111,6 +113,10 @@ declare module "aerospike" {
 
     class OperateCommand extends ReadRecordCommand { }
 
+    class PrivilegeGrantCommand extends Command { }
+
+    class PrivilegeRevokeCommand extends Command { }
+
     class PutCommand extends WriteRecordCommand { }
 
     class QueryCommand extends StreamCommand { }
@@ -125,7 +131,27 @@ declare module "aerospike" {
 
     class QueryForeachCommand extends StreamCommand { }
 
+    class QueryRoleCommand extends Command { }
+
+    class QueryRolesCommand extends Command { }
+
+    class QueryUserCommand extends Command { }
+
+    class QueryUsersCommand extends Command { }
+
     class RemoveCommand extends WriteRecordCommand { }
+
+    class RoleCreateCommand extends Command { }
+
+    class RoleDropCommand extends Command { }
+
+    class RoleGrantCommand extends Command { }
+
+    class RoleRevokeCommand extends Command { }
+
+    class RoleSetWhitelistCommand extends Command { }
+
+    class RoleSetQuotasCommand extends Command { }
 
     class ScanCommand extends StreamCommand { }
 
@@ -142,6 +168,10 @@ declare module "aerospike" {
     class UdfRegisterCommand extends Command { }
 
     class UdfRemoveCommand extends Command { }
+
+    class UserCreateCommand extends Command { }
+
+    class UserDropCommand extends Command { }
 
     // C++ bindings
     enum ExpOpcodes {
@@ -530,6 +560,9 @@ declare module "aerospike" {
         AEROSPIKE_INVALID_ROLE = 70,
         AEROSPIKE_ROLE_ALREADY_EXISTS,
         AEROSPIKE_INVALID_PRIVILEGE,
+        AEROSPIKE_INVALID_WHITELIST,
+        AEROSPIKE_QUOTAS_NOT_ENABLED,
+        AEROSPIKE_INVALID_QUOTA,
         AEROSPIKE_NOT_AUTHENTICATED = 80,
         AEROSPIKE_ROLE_VIOLATION,
         AEROSPIKE_ERR_UDF = 100,
@@ -550,6 +583,19 @@ declare module "aerospike" {
         AEROSPIKE_ERR_QUERY,
         AEROSPIKE_ERR_UDF_NOT_FOUND = 1301,
         AEROSPIKE_ERR_LUA_FILE_NOT_FOUND
+    }
+
+    enum PrivilegeCode {
+        USER_ADMIN = 0,
+        SYS_ADMIN = 1,
+        DATA_ADMIN = 2,
+        UDF_ADMIN = 3,
+        SINDEX_ADMIN = 4,
+        READ = 10,
+        READ_WRITE = 11,
+        READ_WRITE_UDF = 12,
+        WRITE = 13,
+        TRUNCATE = 14
     }
 
     interface IAddonUDF {
@@ -693,6 +739,7 @@ declare module "aerospike" {
         nobins?: boolean;
         paginate?: boolean;
         maxRecords?: number;
+        ttl?: number;
     }
 
     class Query {
@@ -708,6 +755,7 @@ declare module "aerospike" {
         public paginate: boolean | undefined;
         public maxRecords: number | undefined;
         public queryState: number | null | undefined /* ??? */;
+        public ttl: number | undefined;
         constructor(client: Client, ns: string, set: string, options?: IQueryOptions);
         public nextPage(state: number): void;
         public hasNextPage(): boolean;
@@ -890,7 +938,7 @@ declare module "aerospike" {
         queueInitialCapacity?: number;
     }
 
-    class CommandQueuePolicy extends BasePolicy implements ICommandQueuePolicyProps {
+    export class CommandQueuePolicy extends BasePolicy implements ICommandQueuePolicyProps {
         public maxCommandsInProcess?: number;
         public maxCommandsInQueue?: number;
         public queueInitialCapacity?: number;
@@ -911,10 +959,19 @@ declare module "aerospike" {
         checkBounds?: boolean;
     }
 
-    class InfoPolicy extends BasePolicy implements IInfoPolicyProps {
+    export class InfoPolicy extends BasePolicy implements IInfoPolicyProps {
         public sendAsIs?: boolean;
         public checkBounds?: boolean;
         constructor(props?: IInfoPolicyProps);
+    }
+
+    interface IAdminPolicyProps {
+        timeout?: number;
+    }
+
+    export class AdminPolicy implements IAdminPolicyProps {
+        public timeout?: number;
+        constructor(props?: IAdminPolicyProps);
     }
 
     interface IListPolicyProps extends IBasePolicyProps {
@@ -922,7 +979,7 @@ declare module "aerospike" {
         writeFlags?: ListWriteFlags;
     }
 
-    class ListPolicy extends BasePolicy implements IListPolicyProps {
+    export class ListPolicy extends BasePolicy implements IListPolicyProps {
         public order?: ListOrder;
         public writeFlags?: ListWriteFlags;
         constructor(props?: IListPolicyProps);
@@ -934,7 +991,7 @@ declare module "aerospike" {
         writeFlags?: MapsWriteFlags;
     }
 
-    class MapPolicy extends BasePolicy implements IMapPolicyProps {
+    export class MapPolicy extends BasePolicy implements IMapPolicyProps {
         public order?: MapsOrder;
         public writeMode?: MapsWriteMode;
         public writeFlags?: MapsWriteFlags;
@@ -1191,6 +1248,21 @@ declare module "aerospike" {
         public addSeedHost(hostname: string, number?: number): void;
         public contextToBase64(context: CdtContext): string;
         public contextFromBase64(serializedContext: string): CdtContext;
+        public changePassword(user: string, password: string, policy?: IAdminPolicyProps): void;
+        public createUser(user: string, password: string, roles?: string[], policy?: IAdminPolicyProps): void;
+        public createRole(roleName: string, privileges: Privilege[], policy?: IAdminPolicyProps, whitelist?: string[], readQuota?: number, writeQuota?: number): void;
+        public dropRole(roleName: string, policy?: IAdminPolicyProps): void;
+        public dropUser(user: string, policy?: IAdminPolicyProps): void;
+        public grantPrivileges(roleName: string, privileges: Privilege[], policy?: IAdminPolicyProps): void;
+        public grantRoles(user: string, roles: string[], policy?: IAdminPolicyProps): void;
+        public queryRole(roleName: string, policy?: IAdminPolicyProps): Promise<Role>;
+        public queryRoles(policy?: IAdminPolicyProps): Promise<Role[]>;
+        public queryUser(user: string, policy?: IAdminPolicyProps): Promise<User>;
+        public queryUsers(policy?: IAdminPolicyProps): Promise<User[]>;
+        public revokePrivileges(roleName: string, privileges: Privilege[], policy?: IAdminPolicyProps): void;
+        public revokeRoles(user: string, roles: string[], policy?: IAdminPolicyProps): void;
+        public setQuotas(roleName: string, readQuota: number, writeQuota: number, policy?: IAdminPolicyProps): void;
+        public setWhitelist(roleName: string, whitelist: string[], policy?: IAdminPolicyProps): void;
         public removeSeedHost(hostname: string, number?: number): void;
         public batchExists(keys: IKey[], policy?: IBatchPolicyProps): Promise<IBatchResult[]>;
         public batchExists(keys: IKey[], callback: TypedCallback<IBatchResult[]>): void;
@@ -1522,6 +1594,7 @@ declare module "aerospike" {
         nobins?: boolean;
         concurrent?: boolean;
         paginate?: boolean;
+        ttl?: number;
     }
 
     interface IScanState {
@@ -1538,6 +1611,7 @@ declare module "aerospike" {
         private pfEnabled: boolean;
         public paginate: boolean | undefined;
         public scanState: IScanState | null | undefined;
+        public ttl: number | undefined;
         public udf?: IAddonUDF;
         public ops?: Operation[];
         constructor(client: Client, ns: string, set: string, options?: IScanOptions);
@@ -1558,6 +1632,62 @@ declare module "aerospike" {
 
     // exp.js
     type AerospikeExp = { op: number, [key: string]: any }[]
+
+    // user.js
+    interface IUserOptions {
+        connsInUse?: number;
+        name?: string;
+        readInfo?: number[];
+        writeInfo?: number[];
+        roles?: string[];
+    }
+
+    class User {
+        constructor(options: IUserOptions);
+        public connsInUse: number;
+        public name: string;
+        public readInfo: number[];
+        public writeInfo: number[];
+        public roles: string[];
+    }
+
+    // role.js
+    interface IRoleOptions {
+        name?: string;
+        readQuota?: number;
+        writeQuota?: number;
+        whitelist?: string[];
+        privileges?: Privilege[];
+    }
+
+    class Role {
+        public name: string;
+        public readQuota: number;
+        public writeQuota: number;
+        public whitelist: string[];
+        public privileges: Privilege[];
+    }
+
+    // privilege.js
+    interface IPrivilegeOptions {
+        namespace?: string;
+        set?: string;
+    }
+
+    class Privilege {
+        constructor(code: PrivilegeCode, options: IPrivilegeOptions)
+        options: Record<string, any>;
+        public code: PrivilegeCode;
+        public namespace: string;
+        public set: string;
+    }
+
+    // admin.js
+    interface AdminModule {
+        User: typeof User;
+        Role: typeof Role;
+        Privilege: typeof Privilege;
+    }
 
     class AerospikeRecord<T extends AerospikeBins = AerospikeBins> {
         public key: IKey;
@@ -1686,7 +1816,7 @@ declare module "aerospike" {
         Context: typeof CdtContext;
     }
 
-    type AnyPolicy = BasePolicy | ApplyPolicy | BatchPolicy | OperatePolicy | QueryPolicy | ReadPolicy | RemovePolicy | ScanPolicy | WritePolicy | BatchReadPolicy | BatchRemovePolicy | BatchWritePolicy | BatchApplyPolicy | CommandQueuePolicy | HLLPolicy | InfoPolicy | ListPolicy | MapPolicy;
+    type AnyPolicy = BasePolicy | ApplyPolicy | BatchPolicy | OperatePolicy | QueryPolicy | ReadPolicy | RemovePolicy | ScanPolicy | WritePolicy | BatchReadPolicy | BatchRemovePolicy | BatchWritePolicy | BatchApplyPolicy | CommandQueuePolicy | HLLPolicy | InfoPolicy | AdminPolicy | ListPolicy | MapPolicy;
 
     export interface PolicyModule {
         gen: typeof PolicyGen;
@@ -1703,6 +1833,7 @@ declare module "aerospike" {
         BatchWritePolicy: typeof BatchWritePolicy;
         CommandQueuePolicy: typeof CommandQueuePolicy;
         InfoPolicy: typeof InfoPolicy;
+        AdminPolicy: typeof AdminPolicy;
         ListPolicy: typeof ListPolicy;
         MapPolicy: typeof MapPolicy;
         OperatePolicy: typeof OperatePolicy;
@@ -1771,6 +1902,9 @@ declare module "aerospike" {
         INVALID_ROLE: Status;
         ROLE_ALREADY_EXISTS: Status;
         INVALID_PRIVILEGE: Status;
+        INVALID_WHITELIST: Status;
+        QUOTAS_NOT_ENABLED: Status;
+        INVALID_QUOTA: Status;
         NOT_AUTHENTICATED: Status;
         ROLE_VIOLATION: Status;
         ERR_UDF: Status;
@@ -2083,6 +2217,8 @@ declare module "aerospike" {
         ICASE,
         NEWLINE
     }
+    export const info: InfoModule;
+    export const admin: AdminModule;
     export const lists: ListsModule
     export const hll: HLLModule;
     export const maps: MapsModule;
@@ -2115,4 +2251,5 @@ declare module "aerospike" {
         BATCH_APPLY,
         BATCH_REMOVE
     }
+    export const priviledgeCode: typeof PrivilegeCode;
 }
