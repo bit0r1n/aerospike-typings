@@ -5,7 +5,7 @@ Actual for version 5.7.0
 
 ## Workaround to use it
 1. Add this repo as submodule
-2. Add path to submodule in tsconfig, like `{ "compilerOptions": { "paths": { "*": ["submodules/aerospike-typings/*"] } } }`
+2. Add path to submodule in tsconfig, like `compilerOptions.paths["*"] = ["submodules/aerospike-typings/*"]`
 3. Enjoy .
 
 If you have noticied any problem/missing typing, freely create an issue.
