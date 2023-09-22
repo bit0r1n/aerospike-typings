@@ -1991,6 +1991,8 @@ declare module "aerospike" {
         bytes: (value: string[], size: number) => AerospikeExp;
         geo: _valueExp<GeoJSON>;
         nil: () => AerospikeExp;
+        inf:() => AerospikeExp;
+        wildcard: () => AerospikeExp;
         list: _valueExp<AerospikeRecordValue[]>;
         map: _valueExp<Record<string, AerospikeRecordValue>>;
 
