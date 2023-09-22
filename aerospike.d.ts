@@ -700,7 +700,7 @@ declare module "aerospike" {
     }
 
     // bin.js
-    class Bin {
+    export class Bin {
         constructor(name: string, value: AerospikeRecordValue | Map<AerospikeMapKey, any>, mapOrder?: MapsOrder);
         public name: string;
         public value: AerospikeRecordValue | Map<AerospikeMapKey, any>;
