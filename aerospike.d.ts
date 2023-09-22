@@ -3,6 +3,7 @@ import { EventEmitter, Stream } from "stream";
 declare module "aerospike" {
     // type PartialAerospikeRecordValue = null | undefined | boolean | string | number | Double | BigInt | Buffer | GeoJSON;
     type AerospikeRecordValue = any;
+    type AerospikeMapKey = any[] | string | number | Double;
 
     type AerospikeBins = {
         [key: string]: AerospikeRecordValue
@@ -696,6 +697,13 @@ declare module "aerospike" {
         public udfRegister(filename: string, type: Language, policy: IInfoPolicyProps, callback: AddonCallback): void;
         public udfRemove(module: string, policy: IInfoPolicyProps, callback: AddonCallback): void;
         public updateLogging(log: ILogInfo): AddonAerospikeClient;
+    }
+
+    // bin.js
+    class Bin {
+        constructor(name: string, value: AerospikeRecordValue | Map<AerospikeMapKey, any>, mapOrder?: MapsOrder);
+        public name: string;
+        public value: AerospikeRecordValue | Map<AerospikeMapKey, any>;
     }
 
     // filter.js
