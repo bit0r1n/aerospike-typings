@@ -3,6 +3,7 @@ import { EventEmitter, Stream } from "stream";
 declare module "aerospike" {
     // type PartialAerospikeRecordValue = null | undefined | boolean | string | number | Double | BigInt | Buffer | GeoJSON;
     type AerospikeRecordValue = any;
+    type AerospikeMapKey = any[] | string | number | Double;
 
     type AerospikeBins = {
         [key: string]: AerospikeRecordValue
@@ -696,6 +697,13 @@ declare module "aerospike" {
         public udfRegister(filename: string, type: Language, policy: IInfoPolicyProps, callback: AddonCallback): void;
         public udfRemove(module: string, policy: IInfoPolicyProps, callback: AddonCallback): void;
         public updateLogging(log: ILogInfo): AddonAerospikeClient;
+    }
+
+    // bin.js
+    export class Bin {
+        constructor(name: string, value: AerospikeRecordValue | Map<AerospikeMapKey, any>, mapOrder?: MapsOrder);
+        public name: string;
+        public value: AerospikeRecordValue | Map<AerospikeMapKey, any>;
     }
 
     // filter.js
@@ -1983,6 +1991,8 @@ declare module "aerospike" {
         bytes: (value: string[], size: number) => AerospikeExp;
         geo: _valueExp<GeoJSON>;
         nil: () => AerospikeExp;
+        inf:() => AerospikeExp;
+        wildcard: () => AerospikeExp;
         list: _valueExp<AerospikeRecordValue[]>;
         map: _valueExp<Record<string, AerospikeRecordValue>>;
 
@@ -2076,39 +2086,39 @@ declare module "aerospike" {
             set: (bin: AerospikeExp, value: AerospikeExp, idx: AerospikeExp, policy?: IListPolicyProps) => AerospikeExp,
             clear: (bin: AerospikeExp) => AerospikeExp,
             sort: (bin: AerospikeExp, order: ListSortFlags) => AerospikeExp,
-            removeByValue: (bin: AerospikeExp, value: AerospikeExp) => AerospikeExp,
-            removeByValueList: (bin: AerospikeExp, values: AerospikeExp) => AerospikeExp,
-            removeByValueRange: (bin: AerospikeExp, end: AerospikeExp, begin: AerospikeExp) => AerospikeExp,
-            removeByRelRankRangeToEnd: (bin: AerospikeExp, rank: AerospikeExp, value: AerospikeExp) => AerospikeExp,
-            removeByRelRankRange: (bin: AerospikeExp, count: AerospikeExp, rank: AerospikeExp, value: AerospikeExp) => AerospikeExp,
-            removeByIndex: (bin: AerospikeExp, idx: AerospikeExp) => AerospikeExp,
-            removeByIndexRangeToEnd: (bin: AerospikeExp, idx: AerospikeExp) => AerospikeExp,
-            removeByIndexRange: (bin: AerospikeExp, count: AerospikeExp, idx: AerospikeExp) => AerospikeExp,
-            removeByRank: (bin: AerospikeExp, rank: AerospikeExp) => AerospikeExp,
-            removeByRankRangeToEnd: (bin: AerospikeExp, rank: AerospikeExp) => AerospikeExp,
-            removeByRankRange: (bin: AerospikeExp, count: AerospikeExp, rank: AerospikeExp) => AerospikeExp
+            removeByValue: (bin: AerospikeExp, value: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByValueList: (bin: AerospikeExp, values: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByValueRange: (bin: AerospikeExp, end: AerospikeExp, begin: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByRelRankRangeToEnd: (bin: AerospikeExp, rank: AerospikeExp, value: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByRelRankRange: (bin: AerospikeExp, count: AerospikeExp, rank: AerospikeExp, value: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByIndex: (bin: AerospikeExp, idx: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByIndexRangeToEnd: (bin: AerospikeExp, idx: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByIndexRange: (bin: AerospikeExp, count: AerospikeExp, idx: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByRank: (bin: AerospikeExp, rank: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByRankRangeToEnd: (bin: AerospikeExp, rank: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp,
+            removeByRankRange: (bin: AerospikeExp, count: AerospikeExp, rank: AerospikeExp, ctx?: AerospikeExp, returnType?: ListReturnType) => AerospikeExp
         };
         maps: {
             put: (bin: AerospikeExp, value: AerospikeExp, key: AerospikeExp, policy?: IMapPolicyProps) => AerospikeExp,
             putItems: (bin: AerospikeExp, map: AerospikeExp, policy?: IMapPolicyProps) => AerospikeExp,
             increment: (bin: AerospikeExp, value: AerospikeExp, key: AerospikeExp, policy?: IMapPolicyProps) => AerospikeExp,
             clear: (bin: AerospikeExp) => AerospikeExp,
-            removeByKey: (bin: AerospikeExp, key: AerospikeExp) => AerospikeExp,
-            removeByKeyList: (bin: AerospikeExp, keys: AerospikeExp) => AerospikeExp,
-            removeByKeyRange: (bin: AerospikeExp, end: AerospikeExp, begin: AerospikeExp) => AerospikeExp,
-            removeByKeyRelIndexRangeToEnd: (bin: AerospikeExp, idx: AerospikeExp, key: AerospikeExp) => AerospikeExp,
-            removeByKeyRelIndexRange: (bin: AerospikeExp, count: AerospikeExp, idx: AerospikeExp, key: AerospikeExp) => AerospikeExp,
-            removeByValue: (bin: AerospikeExp, value: AerospikeExp) => AerospikeExp,
-            removeByValueList: (bin: AerospikeExp, values: AerospikeExp) => AerospikeExp,
-            removeByValueRange: (bin: AerospikeExp, end: AerospikeExp, begin: AerospikeExp) => AerospikeExp,
-            removeByValueRelRankRangeToEnd: (bin: AerospikeExp, rank: AerospikeExp, value: AerospikeExp) => AerospikeExp,
-            removeByValueRelRankRange: (bin: AerospikeExp, count: AerospikeExp, rank: AerospikeExp, value: AerospikeExp, key: AerospikeExp) => AerospikeExp,
-            removeByIndex: (bin: AerospikeExp, idx: AerospikeExp) => AerospikeExp,
-            removeByIndexRangeToEnd: (bin: AerospikeExp, idx: AerospikeExp) => AerospikeExp,
-            removeByIndexRange: (bin: AerospikeExp, count: AerospikeExp, idx: AerospikeExp) => AerospikeExp,
-            removeByRank: (bin: AerospikeExp, rank: AerospikeExp) => AerospikeExp,
-            removeByRankRangeToEnd: (bin: AerospikeExp, rank: AerospikeExp) => AerospikeExp,
-            removeByRankRange: (bin: AerospikeExp, count: AerospikeExp, rank: AerospikeExp) => AerospikeExp,
+            removeByKey: (bin: AerospikeExp, key: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByKeyList: (bin: AerospikeExp, keys: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByKeyRange: (bin: AerospikeExp, end: AerospikeExp, begin: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByKeyRelIndexRangeToEnd: (bin: AerospikeExp, idx: AerospikeExp, key: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByKeyRelIndexRange: (bin: AerospikeExp, count: AerospikeExp, idx: AerospikeExp, key: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByValue: (bin: AerospikeExp, value: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByValueList: (bin: AerospikeExp, values: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByValueRange: (bin: AerospikeExp, end: AerospikeExp, begin: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByValueRelRankRangeToEnd: (bin: AerospikeExp, rank: AerospikeExp, value: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByValueRelRankRange: (bin: AerospikeExp, count: AerospikeExp, rank: AerospikeExp, value: AerospikeExp, key: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByIndex: (bin: AerospikeExp, idx: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByIndexRangeToEnd: (bin: AerospikeExp, idx: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByIndexRange: (bin: AerospikeExp, count: AerospikeExp, idx: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByRank: (bin: AerospikeExp, rank: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByRankRangeToEnd: (bin: AerospikeExp, rank: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
+            removeByRankRange: (bin: AerospikeExp, count: AerospikeExp, rank: AerospikeExp, ctx?: AerospikeExp, returnType?: MapReturnType) => AerospikeExp,
             size: (bin: AerospikeExp) => AerospikeExp,
             getByKey: (bin: AerospikeExp, key: AerospikeExp, valueType: AerospikeExp, returnType: AerospikeExp) => AerospikeExp,
             getByKeyRange: (bin: AerospikeExp, end: AerospikeExp, begin: AerospikeExp, returnType: AerospikeExp) => AerospikeExp,
