@@ -1455,6 +1455,8 @@ declare module "aerospike" {
         useAlternateAccessAddress?: boolean;
         rackAware?: boolean;
         rackId?: number;
+        maxErrorRate?: number;
+        errorRateWindow?: number;
     }
 
     export class Config {
@@ -1478,6 +1480,8 @@ declare module "aerospike" {
         public useAlternateAccessAddress: boolean;
         public rackAware?: boolean;
         public rackId?: number;
+        public maxErrorRate?: number;
+        public errorRateWindow?: number;
         constructor(config?: IConfigOptions);
         public setDefaultPolicies(policies?: IConfigPolicies): void;
     }
