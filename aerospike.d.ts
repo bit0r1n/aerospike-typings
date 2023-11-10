@@ -1648,6 +1648,19 @@ declare module "aerospike" {
     // exp.js
     type AerospikeExp = { op: number, [key: string]: any }[]
 
+    enum ExpReadFlags {
+        DEFAULT,
+        EVAL_NO_FAIL
+    }
+    enum ExpWriteFlags {
+        DEFAULT,
+        CREATE_ONLY,
+        UPDATE_ONLY,
+        ALLOW_DELETE,
+        POLICY_NO_FAIL,
+        EVAL_NO_FAIL
+    }
+
     // user.js
     interface IUserOptions {
         connsInUse?: number;
@@ -1715,8 +1728,8 @@ declare module "aerospike" {
     export interface FilterModule {
         SindexFilterPredicate: typeof SindexFilterPredicate,
         range(bin: string, min: number, max: number, indexType?: IndexType, context?: CdtContext): RangePredicate;
-        equal(bin: string, value: string): EqualPredicate;
-        contains(bin: string, value: string | number, indexType?: IndexType, context?: CdtContext): EqualPredicate;
+        equal(bin: string, value: string | number | Double | Buffer): EqualPredicate;
+        contains(bin: string, value: string | number | Double | Buffer, indexType?: IndexType, context?: CdtContext): EqualPredicate;
         geoWithinGeoJSONRegion(bin: string, value: GeoJSON, indexType?: IndexType, context?: CdtContext): GeoPredicate;
         geoContainsGeoJSONPoint(bin: string, value: GeoJSON, indexType?: IndexType, context?: CdtContext): GeoPredicate;
         geoWithinRadius(bin: string, lng: number, lat: number, radius: number, indexType?: IndexType, context?: CdtContext): GeoPredicate;
@@ -1798,6 +1811,7 @@ declare module "aerospike" {
         getByIndexRange(bin: string, index: number, count?: number, returnType?: MapReturnType): MapOperation;
         getByRank(bin: string, rank: number, returnType?: MapReturnType): MapOperation;
         getByRankRange(bin: string, rank: number, count?: number, returnType?: MapReturnType): MapOperation;
+        create(bin: string, order: number, persistIndex?: boolean, ctx?: CdtContext | Function): MapOperation;
     }
 
     export interface BitwiseModule {
@@ -2028,6 +2042,7 @@ declare module "aerospike" {
         ttl: _metaExp;
         isTombstone: _metaExp;
         memorySize: _metaExp;
+        recordSize: _metaExp;
         digestModulo: _metaExp;
 
         eq: _cmpExp;
@@ -2177,7 +2192,10 @@ declare module "aerospike" {
             getSimilarity: (bin: AerospikeExp, list: AerospikeExp) => AerospikeExp,
             describe: (bin: AerospikeExp) => AerospikeExp,
             mayContain: (bin: AerospikeExp, list: AerospikeExp) => AerospikeExp
-        }
+        },
+
+        expReadFlags: typeof ExpReadFlags;
+        expWriteFlags: typeof ExpWriteFlags;
 
         type: typeof ExpTypes;
         operations: ExpOperationsModule;
