@@ -1284,14 +1284,14 @@ declare module "aerospike" {
         public batchWrite(records: IBatchRecord[], policy?: IBatchWritePolicyProps): Promise<IBatchResult[]>;
         public batchWrite(records: IBatchRecord[], callback: TypedCallback<IBatchResult[]>): void;
         public batchWrite(records: IBatchRecord[], policy: IBatchReadPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
-        public batchApply(records: IKey[], udf: IAddonUDF, batchPolicy?: IBatchPolicyProps, batchApplyPolicy?: IBatchApplyPolicyProps): Promise<IBatchResult[]>;
-        public batchApply(records: IKey[], udf: IAddonUDF, callback: TypedCallback<IBatchResult[]>): void;
-        public batchApply(records: IKey[], udf: IAddonUDF, batchPolicy: IBatchPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
-        public batchApply(records: IKey[], udf: IAddonUDF, batchPolicy: IBatchPolicyProps, batchApplyPolicy: IBatchApplyPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
-        public batchRemove(records: IKey[], batchPolicy?: IBatchPolicyProps, batchRemovePolicy?: IBatchRemovePolicyProps): Promise<IBatchResult[]>;
-        public batchRemove(records: IKey[], callback: TypedCallback<IBatchResult[]>): void;
-        public batchRemove(records: IKey[], batchPolicy: IBatchPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
-        public batchRemove(records: IKey[], batchPolicy: IBatchPolicyProps, batchRemovePolicy: IBatchRemovePolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchApply(keys: IKey[], udf: IAddonUDF, batchPolicy?: IBatchPolicyProps, batchApplyPolicy?: IBatchApplyPolicyProps): Promise<IBatchResult[]>;
+        public batchApply(keys: IKey[], udf: IAddonUDF, callback: TypedCallback<IBatchResult[]>): void;
+        public batchApply(keys: IKey[], udf: IAddonUDF, batchPolicy: IBatchPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchApply(keys: IKey[], udf: IAddonUDF, batchPolicy: IBatchPolicyProps, batchApplyPolicy: IBatchApplyPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchRemove(keys: IKey[], batchPolicy?: IBatchPolicyProps, batchRemovePolicy?: IBatchRemovePolicyProps): Promise<IBatchResult[]>;
+        public batchRemove(keys: IKey[], callback: TypedCallback<IBatchResult[]>): void;
+        public batchRemove(keys: IKey[], batchPolicy: IBatchPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchRemove(keys: IKey[], batchPolicy: IBatchPolicyProps, batchRemovePolicy: IBatchRemovePolicyProps, callback: TypedCallback<IBatchResult[]>): void;
         public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], policy?: IBatchPolicyProps): Promise<IBatchResult<T>[]>;
         public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], callback: TypedCallback<IBatchResult<T>[]>): void;
         public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchResult<T>[]>): void;
@@ -1309,6 +1309,9 @@ declare module "aerospike" {
         public createGeo2DSphereIndex(options: ITypedIndexOptions, policy: IInfoPolicyProps): Promise<IndexJob>;
         public createGeo2DSphereIndex(options: ITypedIndexOptions, callback: TypedCallback<IndexJob>): void;
         public createGeo2DSphereIndex(options: ITypedIndexOptions, policy: IInfoPolicyProps, callback: TypedCallback<IndexJob>): void;
+        public createBlobIndex(options: ITypedIndexOptions, policy: IInfoPolicyProps): Promise<IndexJob>;
+        public createBlobIndex(options: ITypedIndexOptions, callback: TypedCallback<IndexJob>): void;
+        public createBlobIndex(options: ITypedIndexOptions, policy: IInfoPolicyProps, callback: TypedCallback<IndexJob>): void;
         public apply(key: IKey, udfArgs: IAddonUDF, policy?: IApplyPolicyProps): Promise<any>;
         public apply(key: IKey, udfArgs: IAddonUDF, callback: AddonCallback): void;
         public apply(key: IKey, udfArgs: IAddonUDF, policy: IApplyPolicyProps, callback: AddonCallback): void;
@@ -1452,6 +1455,8 @@ declare module "aerospike" {
         useAlternateAccessAddress?: boolean;
         rackAware?: boolean;
         rackId?: number;
+        maxErrorRate?: number;
+        errorRateWindow?: number;
     }
 
     export class Config {
@@ -1475,6 +1480,8 @@ declare module "aerospike" {
         public useAlternateAccessAddress: boolean;
         public rackAware?: boolean;
         public rackId?: number;
+        public maxErrorRate?: number;
+        public errorRateWindow?: number;
         constructor(config?: IConfigOptions);
         public setDefaultPolicies(policies?: IConfigPolicies): void;
     }
@@ -1641,6 +1648,19 @@ declare module "aerospike" {
     // exp.js
     type AerospikeExp = { op: number, [key: string]: any }[]
 
+    enum ExpReadFlags {
+        DEFAULT,
+        EVAL_NO_FAIL
+    }
+    enum ExpWriteFlags {
+        DEFAULT,
+        CREATE_ONLY,
+        UPDATE_ONLY,
+        ALLOW_DELETE,
+        POLICY_NO_FAIL,
+        EVAL_NO_FAIL
+    }
+
     // user.js
     interface IUserOptions {
         connsInUse?: number;
@@ -1708,8 +1728,8 @@ declare module "aerospike" {
     export interface FilterModule {
         SindexFilterPredicate: typeof SindexFilterPredicate,
         range(bin: string, min: number, max: number, indexType?: IndexType, context?: CdtContext): RangePredicate;
-        equal(bin: string, value: string): EqualPredicate;
-        contains(bin: string, value: string | number, indexType?: IndexType, context?: CdtContext): EqualPredicate;
+        equal(bin: string, value: string | number | Double | Buffer): EqualPredicate;
+        contains(bin: string, value: string | number | Double | Buffer, indexType?: IndexType, context?: CdtContext): EqualPredicate;
         geoWithinGeoJSONRegion(bin: string, value: GeoJSON, indexType?: IndexType, context?: CdtContext): GeoPredicate;
         geoContainsGeoJSONPoint(bin: string, value: GeoJSON, indexType?: IndexType, context?: CdtContext): GeoPredicate;
         geoWithinRadius(bin: string, lng: number, lat: number, radius: number, indexType?: IndexType, context?: CdtContext): GeoPredicate;
@@ -1791,6 +1811,7 @@ declare module "aerospike" {
         getByIndexRange(bin: string, index: number, count?: number, returnType?: MapReturnType): MapOperation;
         getByRank(bin: string, rank: number, returnType?: MapReturnType): MapOperation;
         getByRankRange(bin: string, rank: number, count?: number, returnType?: MapReturnType): MapOperation;
+        create(bin: string, order: number, persistIndex?: boolean, ctx?: CdtContext | Function): MapOperation;
     }
 
     export interface BitwiseModule {
@@ -2021,6 +2042,7 @@ declare module "aerospike" {
         ttl: _metaExp;
         isTombstone: _metaExp;
         memorySize: _metaExp;
+        recordSize: _metaExp;
         digestModulo: _metaExp;
 
         eq: _cmpExp;
@@ -2170,7 +2192,10 @@ declare module "aerospike" {
             getSimilarity: (bin: AerospikeExp, list: AerospikeExp) => AerospikeExp,
             describe: (bin: AerospikeExp) => AerospikeExp,
             mayContain: (bin: AerospikeExp, list: AerospikeExp) => AerospikeExp
-        }
+        },
+
+        expReadFlags: typeof ExpReadFlags;
+        expWriteFlags: typeof ExpWriteFlags;
 
         type: typeof ExpTypes;
         operations: ExpOperationsModule;
