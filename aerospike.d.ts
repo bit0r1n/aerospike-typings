@@ -1360,7 +1360,7 @@ declare module "aerospike" {
         public remove(key: IKey, policy?: IRemovePolicyProps): Promise<IKey>;
         public remove(key: IKey, callback: TypedCallback<IKey>): void;
         public remove(key: IKey, policy: IRemovePolicyProps, callback: TypedCallback<IKey>): void;
-        public scan(ns: string, set: string, options: IScanOptions): Scan;
+        public scan(ns: string, set: string, options?: IScanOptions): Scan;
         public select<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: (keyof T)[], policy?: IReadPolicyProps): Promise<AerospikeRecord<T>>;
         public select<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: (keyof T)[], callback: TypedCallback<AerospikeRecord<T>>): void;
         public select<T extends AerospikeBins = AerospikeBins>(key: IKey, bins: (keyof T)[], policy: IReadPolicyProps, callback: TypedCallback<AerospikeRecord<T>>): void;
