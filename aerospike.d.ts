@@ -1292,9 +1292,9 @@ declare module "aerospike" {
         public batchRemove(keys: IKey[], callback: TypedCallback<IBatchResult[]>): void;
         public batchRemove(keys: IKey[], batchPolicy: IBatchPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
         public batchRemove(keys: IKey[], batchPolicy: IBatchPolicyProps, batchRemovePolicy: IBatchRemovePolicyProps, callback: TypedCallback<IBatchResult[]>): void;
-        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], policy?: IBatchPolicyProps): Promise<IBatchResult<T>[]>;
-        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], callback: TypedCallback<IBatchResult<T>[]>): void;
-        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: string[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchResult<T>[]>): void;
+        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: (keyof T)[], policy?: IBatchPolicyProps): Promise<IBatchResult<T>[]>;
+        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: (keyof T)[], callback: TypedCallback<IBatchResult<T>[]>): void;
+        public batchSelect<T extends AerospikeBins = AerospikeBins>(keys: IKey[], bins: (keyof T)[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchResult<T>[]>): void;
         public close(releaseEventLoop?: boolean): void;
         public connect(callback?: TypedCallback<Client>): Promise<Client>;
         public createIndex(options: IIndexOptions, policy?: IInfoPolicyProps): Promise<IndexJob>;
