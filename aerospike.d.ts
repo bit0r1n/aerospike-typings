@@ -583,7 +583,12 @@ declare module "aerospike" {
         AEROSPIKE_ERR_QUERY_TIMEOUT,
         AEROSPIKE_ERR_QUERY,
         AEROSPIKE_ERR_UDF_NOT_FOUND = 1301,
-        AEROSPIKE_ERR_LUA_FILE_NOT_FOUND
+        AEROSPIKE_ERR_LUA_FILE_NOT_FOUND,
+        AEROSPIKE_BATCH_FAILED,
+        AEROSPIKE_NO_RESPONSE,
+        AEROSPIKE_MAX_ERROR_RATE,
+        AEROSPIKE_USE_NORMAL_RETRY,
+        AEROSPIKE_ERR_MAX_RETRIES_EXCEEDED
     }
 
     enum PrivilegeCode {
@@ -1164,6 +1169,7 @@ declare module "aerospike" {
 
     interface IBatchWritePolicyProps {
         filterExpression?: AerospikeExp;
+        ttl?: number;
         key?: PolicyKey;
         commitLevel?: PolicyCommitLevel;
         gen?: PolicyGen;
@@ -1173,6 +1179,7 @@ declare module "aerospike" {
 
     export class BatchWritePolicy implements IBatchWritePolicyProps {
         public filterExpression?: AerospikeExp;
+        public ttl?: number;
         public key?: PolicyKey;
         public commitLevel?: PolicyCommitLevel;
         public gen?: PolicyGen;
@@ -1760,6 +1767,7 @@ declare module "aerospike" {
         removeByRank(bin: string, rank: number, returnType?: ListReturnType): ListOperation;
         removeByRankRange(bin: string, rank: number, count?: number, returnType?: ListReturnType): InvertibleListOp;
         clear(bin: string): ListOperation;
+        create(bin: string, order: ListOrder, pad?: boolean, persistIndex?: boolean, ctx?: CdtContext): ListOperation;
         set(bin: string, index: number, value: AerospikeRecordValue, policy?: IListPolicyProps): ListOperation;
         trim(bin: string, index: number, count: number): ListOperation;
         get(bin: string, index: number): ListOperation;
@@ -1954,6 +1962,16 @@ declare module "aerospike" {
         ERR_QUERY: Status;
         ERR_UDF_NOT_FOUND: Status;
         ERR_LUA_FILE_NOT_FOUND: Status;
+        BATCH_FAILED: Status;
+        AEROSPIKE_BATCH_FAILED: Status;
+        NO_RESPONSE: Status;
+        AEROSPIKE_NO_RESPONSE: Status;
+        MAX_ERROR_RATE: Status;
+        AEROSPIKE_MAX_ERROR_RATE: Status;
+        USE_NORMAL_RETRY: Status;
+        AEROSPIKE_USE_NORMAL_RETRY: Status;
+        ERR_MAX_RETRIES_EXCEEDED: Status;
+        AEROSPIKE_ERR_MAX_RETRIES_EXCEEDED: Status;
         getMessage(code: Status): string;
     }
 
