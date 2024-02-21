@@ -1760,6 +1760,7 @@ declare module "aerospike" {
         removeByRank(bin: string, rank: number, returnType?: ListReturnType): ListOperation;
         removeByRankRange(bin: string, rank: number, count?: number, returnType?: ListReturnType): InvertibleListOp;
         clear(bin: string): ListOperation;
+        create(bin: string, order: ListOrder, pad?: boolean, persistIndex?: boolean, ctx?: CdtContext): ListOperation;
         set(bin: string, index: number, value: AerospikeRecordValue, policy?: IListPolicyProps): ListOperation;
         trim(bin: string, index: number, count: number): ListOperation;
         get(bin: string, index: number): ListOperation;
