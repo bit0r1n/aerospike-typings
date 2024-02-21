@@ -1164,6 +1164,7 @@ declare module "aerospike" {
 
     interface IBatchWritePolicyProps {
         filterExpression?: AerospikeExp;
+        ttl?: number;
         key?: PolicyKey;
         commitLevel?: PolicyCommitLevel;
         gen?: PolicyGen;
@@ -1173,6 +1174,7 @@ declare module "aerospike" {
 
     export class BatchWritePolicy implements IBatchWritePolicyProps {
         public filterExpression?: AerospikeExp;
+        public ttl?: number;
         public key?: PolicyKey;
         public commitLevel?: PolicyCommitLevel;
         public gen?: PolicyGen;
