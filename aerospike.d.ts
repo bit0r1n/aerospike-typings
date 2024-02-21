@@ -583,7 +583,12 @@ declare module "aerospike" {
         AEROSPIKE_ERR_QUERY_TIMEOUT,
         AEROSPIKE_ERR_QUERY,
         AEROSPIKE_ERR_UDF_NOT_FOUND = 1301,
-        AEROSPIKE_ERR_LUA_FILE_NOT_FOUND
+        AEROSPIKE_ERR_LUA_FILE_NOT_FOUND,
+        AEROSPIKE_BATCH_FAILED,
+        AEROSPIKE_NO_RESPONSE,
+        AEROSPIKE_MAX_ERROR_RATE,
+        AEROSPIKE_USE_NORMAL_RETRY,
+        AEROSPIKE_ERR_MAX_RETRIES_EXCEEDED
     }
 
     enum PrivilegeCode {
@@ -1957,6 +1962,16 @@ declare module "aerospike" {
         ERR_QUERY: Status;
         ERR_UDF_NOT_FOUND: Status;
         ERR_LUA_FILE_NOT_FOUND: Status;
+        BATCH_FAILED: Status;
+        AEROSPIKE_BATCH_FAILED: Status;
+        NO_RESPONSE: Status;
+        AEROSPIKE_NO_RESPONSE: Status;
+        MAX_ERROR_RATE: Status;
+        AEROSPIKE_MAX_ERROR_RATE: Status;
+        USE_NORMAL_RETRY: Status;
+        AEROSPIKE_USE_NORMAL_RETRY: Status;
+        ERR_MAX_RETRIES_EXCEEDED: Status;
+        AEROSPIKE_ERR_MAX_RETRIES_EXCEEDED: Status;
         getMessage(code: Status): string;
     }
 
