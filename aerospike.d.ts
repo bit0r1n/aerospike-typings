@@ -885,6 +885,12 @@ declare module "aerospike" {
     type AnyOperation = Operation | ExpOperation;
 
     // policies
+    enum QueryDuration {
+        LONG,
+        SHORT,
+        LONG_RELAX_AP
+    }
+
     interface IBasePolicyProps {
         socketTimeout?: number;
         totalTimeout?: number;
@@ -925,6 +931,7 @@ declare module "aerospike" {
         sendSetName?: boolean;
         readModeAP?: PolicyReadModeAP;
         readModeSC?: PolicyReadModeSC;
+        readTouchTtlPercent?: number
     }
 
     export class BatchPolicy extends BasePolicy implements IBatchPolicyProps {
@@ -1021,6 +1028,7 @@ declare module "aerospike" {
         durableDelete?: boolean;
         readModeAP?: PolicyReadModeAP;
         readModeSC?: PolicyReadModeSC;
+        readTouchTtlPercent?: number;
     }
 
     export class OperatePolicy extends BasePolicy implements IOperatePolicyProps {
@@ -1040,6 +1048,9 @@ declare module "aerospike" {
         deserialize?: boolean;
         failOnClusterChange?: boolean;
         replica?: PolicyReplica;
+        infoTimeout?: number;
+        totalTimeout?: number;
+        expectedDuration?: QueryDuration;
     }
 
     export class QueryPolicy extends BasePolicy implements IQueryPolicyProps {
@@ -1047,6 +1058,9 @@ declare module "aerospike" {
         public failOnClusterChange?: boolean;
         public filterExpression?: AerospikeExp;
         public replica?: PolicyReplica;
+        public infoTimeout?: number;
+        public totalTimeout?: number;
+        public expectedDuration?: QueryDuration;
         constructor(props?: IQueryPolicyProps);
     }
 
@@ -1056,6 +1070,7 @@ declare module "aerospike" {
         readModeAP?: PolicyReadModeAP;
         readModeSC?: PolicyReadModeSC;
         deserialize?: boolean;
+        readTouchTtlPercent?: number;
     }
 
     export class ReadPolicy extends BasePolicy implements IReadPolicyProps {
@@ -1064,6 +1079,7 @@ declare module "aerospike" {
         public readModeAP?: PolicyReadModeAP;
         public readModeSC?: PolicyReadModeSC;
         public deserialize?: boolean;
+        public readTouchTtlPercent?: number;
         constructor(props?: IReadPolicyProps);
     }
 
@@ -1139,6 +1155,7 @@ declare module "aerospike" {
         filterExpression?: AerospikeExp;
         readModeAP?: PolicyReadModeAP;
         readModeSC?: PolicyReadModeSC;
+        readTouchTtlPercent?: number;
     }
 
     export class BatchReadPolicy  implements IBatchReadPolicyProps{
@@ -1862,6 +1879,7 @@ declare module "aerospike" {
         readModeAP: typeof PolicyReadModeAP;
         readModeSC: typeof PolicyReadModeSC;
         commitLevel: typeof PolicyCommitLevel;
+        queryDuration: typeof QueryDuration
         ApplyPolicy: typeof ApplyPolicy;
         BatchPolicy: typeof BatchPolicy;
         BatchApplyPolicy: typeof BatchApplyPolicy;
