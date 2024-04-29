@@ -3,9 +3,9 @@ Since typings in [original repo](https://github.com/aerospike/aerospike-client-n
 
 Actual for version 5.12.0
 
-## Workaround to use it
-1. Add this repo as submodule
-2. Add path to submodule in tsconfig, like `compilerOptions.paths["*"] = ["submodules/aerospike-typings/*"]`
-3. Enjoy .
+## Installation
+1. Install package `npm install https://github.com/bit0r1n/aerospike-typings -D`
+2. Add path to typings in tsconfig file `compilerOptions["paths"]["aerospike"] = [ "node_modules/aerospike-typings" ]`
+3. Enjoy !!
 
-If you have noticied any problem/missing typing, freely create an issue.
+If you have noticed any problem/missing typing, freely create an issue/PR
