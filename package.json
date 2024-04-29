@@ -1,4 +1,15 @@
 {
+  "name": "aerospike-typings",
+  "version": "5.12.0",
+  "description": "More precise typing for aerospike NodeJS client library",
+  "license": "MIT",
+  "homepage": "https://github.com/bit0r1n/aerospike-typings",
+  "main": "",
+  "typings": "aerospike.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bit0r1n/aerospike-typings.git"
+  },
   "devDependencies": {
     "@types/node": "^18.15.11"
   }
