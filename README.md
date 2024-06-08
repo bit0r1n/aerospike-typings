@@ -5,7 +5,7 @@ Actual for version 5.12.0
 
 ## Installation
 1. Install package `npm install https://github.com/bit0r1n/aerospike-typings -D`
-2. Add path to typings in tsconfig file `compilerOptions["paths"]["aerospike"] = [ "node_modules/aerospike-typings" ]`
+2. Add path to typings in tsconfig file `compilerOptions["paths"]["aerospike"] = [ "node_modules/aerospike-typings/aerospike.d.ts" ]`
 3. Enjoy !!
 
 If you have noticed any problem/missing typing, freely create an issue/PR
