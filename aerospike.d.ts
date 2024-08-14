@@ -1302,9 +1302,9 @@ declare module "aerospike" {
         public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IKey[], policy?: IBatchPolicyProps): Promise<IBatchResult<T>[]>;
         public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IKey[], callback: TypedCallback<IBatchResult<T>[]>): void;
         public batchGet<T extends AerospikeBins = AerospikeBins>(keys: IKey[], policy: IBatchPolicyProps, callback: TypedCallback<IBatchResult<T>[]>): void;
-        public batchRead(records: Omit<IBatchRecord[], "type">, policy?: IBatchReadPolicyProps): Promise<IBatchResult[]>;
-        public batchRead(records: Omit<IBatchRecord[], "type">, callback: TypedCallback<IBatchResult[]>): void;
-        public batchRead(records: Omit<IBatchRecord[], "type">, policy: IBatchReadPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
+        public batchRead(records: IBatchRecord[], policy?: IBatchReadPolicyProps): Promise<IBatchResult[]>;
+        public batchRead(records: IBatchRecord[], callback: TypedCallback<IBatchResult[]>): void;
+        public batchRead(records: IBatchRecord[], policy: IBatchReadPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
         public batchWrite(records: IBatchRecord[], policy?: IBatchWritePolicyProps): Promise<IBatchResult[]>;
         public batchWrite(records: IBatchRecord[], callback: TypedCallback<IBatchResult[]>): void;
         public batchWrite(records: IBatchRecord[], policy: IBatchReadPolicyProps, callback: TypedCallback<IBatchResult[]>): void;
