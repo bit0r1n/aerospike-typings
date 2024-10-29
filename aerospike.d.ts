@@ -1618,8 +1618,8 @@ declare module "aerospike" {
 
     // record.js
     interface IRecordMetadata {
-        ttl?: number;
-        gen?: number;
+        ttl?: number | null;
+        gen?: number | null;
     }
 
     // record_stream.js
