@@ -47,7 +47,9 @@ declare module "aerospike" {
     }
 
     class ExistsCommandBase extends Command {
-        protected convertResponse(error: AerospikeError): [AerospikeError | null, boolean];
+        constructor(client: Client, key: IKey, args: any[], callback?: AddonCallback);
+        protected convertResult(metadata: IRecordMetadata): AerospikeRecord<null>
+        protected convertResponse(error: AerospikeError, bins: AerospikeBins, metadata: IRecordMetadata): [AerospikeError | null, boolean | AerospikeRecord<null>];
     }
 
     class ReadRecordCommand extends Command {
@@ -1267,6 +1269,7 @@ declare module "aerospike" {
     interface IBatchResult<T extends AerospikeBins = AerospikeBins> {
         status: Status;
         record: AerospikeRecord<T>;
+        inDoubt: boolean;
     }
 
     export class Client extends EventEmitter {
@@ -1341,6 +1344,7 @@ declare module "aerospike" {
         public apply(key: IKey, udfArgs: IAddonUDF, policy: IApplyPolicyProps, callback: AddonCallback): void;
         public exists(key: IKey, policy?: IReadPolicyProps): Promise<boolean>;
         public exists(key: IKey, policy: IReadPolicyProps, callback: TypedCallback<boolean>): void;
+        public existsWithMetadata(key: IKey, policy: IReadPolicyProps): Promise<AerospikeRecord<null>>;
         public get<T extends AerospikeBins = AerospikeBins>(key: IKey, policy?: IReadPolicyProps): Promise<AerospikeRecord<T>>;
         public get<T extends AerospikeBins = AerospikeBins>(key: IKey, policy: IReadPolicyProps, callback: TypedCallback<AerospikeRecord<T>>): void;
         public indexRemove(namespace: string, index: string, policy?: IInfoPolicyProps): Promise<void>;
