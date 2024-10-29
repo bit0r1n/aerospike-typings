@@ -755,7 +755,7 @@ declare module "aerospike" {
         ttl?: number;
     }
 
-    class Query {
+    export class Query {
         public client: Client;
         public ns: string;
         public set: string;
@@ -1560,7 +1560,7 @@ declare module "aerospike" {
     interface ISindexInfoEntity {
         load_pct: number;
     }
-    class IndexJob extends Job<ISindexInfoEntity> {
+    export class IndexJob extends Job<ISindexInfoEntity> {
         public namespace: string;
         public indexName: string;
         constructor(client: Client, namespace: string, indexName: string);
@@ -1573,7 +1573,7 @@ declare module "aerospike" {
         status: JobStatus;
     }
 
-    class Job<T = IJobInfoResponse> {
+    export class Job<T = IJobInfoResponse> {
         public client: Client;
         public jobID: number;
         public module: string;
@@ -1640,7 +1640,7 @@ declare module "aerospike" {
         bytes: number[];
     }
 
-    class Scan {
+    export class Scan {
         public client: Client;
         public ns: string;
         public set: string;
