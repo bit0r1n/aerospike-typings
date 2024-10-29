@@ -1890,6 +1890,7 @@ declare module "aerospike" {
         BatchReadPolicy: typeof BatchReadPolicy;
         BatchRemovePolicy: typeof BatchRemovePolicy;
         BatchWritePolicy: typeof BatchWritePolicy;
+        BitwisePolicy: typeof BitwisePolicy;
         CommandQueuePolicy: typeof CommandQueuePolicy;
         InfoPolicy: typeof InfoPolicy;
         AdminPolicy: typeof AdminPolicy;
