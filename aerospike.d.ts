@@ -560,6 +560,7 @@ declare module "aerospike" {
         AEROSPIKE_EXPIRED_PASSWORD,
         AEROSPIKE_FORBIDDEN_PASSWORD,
         AEROSPIKE_INVALID_CREDENTIAL,
+        AEROSPIKE_EXPIRED_SESSION,
         AEROSPIKE_INVALID_ROLE = 70,
         AEROSPIKE_ROLE_ALREADY_EXISTS,
         AEROSPIKE_INVALID_PRIVILEGE,
@@ -1908,6 +1909,7 @@ declare module "aerospike" {
     export interface StatusModule {
         ERR_ASYNC_QUEUE_FULL: Status;
         ERR_CONNECTION: Status;
+        ERR_TLS_STATUS: Status;
         ERR_INVALID_NODE: Status,
         ERR_NO_MORE_CONNECTIONS: Status;
         ERR_ASYNC_CONNECTION: Status;
@@ -1959,6 +1961,7 @@ declare module "aerospike" {
         EXPIRED_PASSWORD: Status;
         FORBIDDEN_PASSWORD: Status;
         INVALID_CREDENTIAL: Status;
+        EXPIRED_SESSION: Status;
         INVALID_ROLE: Status;
         ROLE_ALREADY_EXISTS: Status;
         INVALID_PRIVILEGE: Status;
