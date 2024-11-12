@@ -47,7 +47,9 @@ declare module "aerospike" {
     }
 
     class ExistsCommandBase extends Command {
-        protected convertResponse(error: AerospikeError): [AerospikeError | null, boolean];
+        constructor(client: Client, key: IKey, args: any[], callback?: AddonCallback);
+        protected convertResult(metadata: IRecordMetadata): AerospikeRecord<null>
+        protected convertResponse(error: AerospikeError, bins: AerospikeBins, metadata: IRecordMetadata): [AerospikeError | null, boolean | AerospikeRecord<null>];
     }
 
     class ReadRecordCommand extends Command {
@@ -558,6 +560,7 @@ declare module "aerospike" {
         AEROSPIKE_EXPIRED_PASSWORD,
         AEROSPIKE_FORBIDDEN_PASSWORD,
         AEROSPIKE_INVALID_CREDENTIAL,
+        AEROSPIKE_EXPIRED_SESSION,
         AEROSPIKE_INVALID_ROLE = 70,
         AEROSPIKE_ROLE_ALREADY_EXISTS,
         AEROSPIKE_INVALID_PRIVILEGE,
@@ -755,7 +758,7 @@ declare module "aerospike" {
         ttl?: number;
     }
 
-    class Query {
+    export class Query {
         public client: Client;
         public ns: string;
         public set: string;
@@ -1267,6 +1270,7 @@ declare module "aerospike" {
     interface IBatchResult<T extends AerospikeBins = AerospikeBins> {
         status: Status;
         record: AerospikeRecord<T>;
+        inDoubt: boolean;
     }
 
     export class Client extends EventEmitter {
@@ -1341,6 +1345,7 @@ declare module "aerospike" {
         public apply(key: IKey, udfArgs: IAddonUDF, policy: IApplyPolicyProps, callback: AddonCallback): void;
         public exists(key: IKey, policy?: IReadPolicyProps): Promise<boolean>;
         public exists(key: IKey, policy: IReadPolicyProps, callback: TypedCallback<boolean>): void;
+        public existsWithMetadata(key: IKey, policy: IReadPolicyProps): Promise<AerospikeRecord<null>>;
         public get<T extends AerospikeBins = AerospikeBins>(key: IKey, policy?: IReadPolicyProps): Promise<AerospikeRecord<T>>;
         public get<T extends AerospikeBins = AerospikeBins>(key: IKey, policy: IReadPolicyProps, callback: TypedCallback<AerospikeRecord<T>>): void;
         public indexRemove(namespace: string, index: string, policy?: IInfoPolicyProps): Promise<void>;
@@ -1560,7 +1565,7 @@ declare module "aerospike" {
     interface ISindexInfoEntity {
         load_pct: number;
     }
-    class IndexJob extends Job<ISindexInfoEntity> {
+    export class IndexJob extends Job<ISindexInfoEntity> {
         public namespace: string;
         public indexName: string;
         constructor(client: Client, namespace: string, indexName: string);
@@ -1573,7 +1578,7 @@ declare module "aerospike" {
         status: JobStatus;
     }
 
-    class Job<T = IJobInfoResponse> {
+    export class Job<T = IJobInfoResponse> {
         public client: Client;
         public jobID: number;
         public module: string;
@@ -1613,8 +1618,8 @@ declare module "aerospike" {
 
     // record.js
     interface IRecordMetadata {
-        ttl?: number;
-        gen?: number;
+        ttl?: number | null;
+        gen?: number | null;
     }
 
     // record_stream.js
@@ -1640,7 +1645,7 @@ declare module "aerospike" {
         bytes: number[];
     }
 
-    class Scan {
+    export class Scan {
         public client: Client;
         public ns: string;
         public set: string;
@@ -1886,6 +1891,7 @@ declare module "aerospike" {
         BatchReadPolicy: typeof BatchReadPolicy;
         BatchRemovePolicy: typeof BatchRemovePolicy;
         BatchWritePolicy: typeof BatchWritePolicy;
+        BitwisePolicy: typeof BitwisePolicy;
         CommandQueuePolicy: typeof CommandQueuePolicy;
         InfoPolicy: typeof InfoPolicy;
         AdminPolicy: typeof AdminPolicy;
@@ -1903,6 +1909,7 @@ declare module "aerospike" {
     export interface StatusModule {
         ERR_ASYNC_QUEUE_FULL: Status;
         ERR_CONNECTION: Status;
+        ERR_TLS_STATUS: Status;
         ERR_INVALID_NODE: Status,
         ERR_NO_MORE_CONNECTIONS: Status;
         ERR_ASYNC_CONNECTION: Status;
@@ -1954,6 +1961,7 @@ declare module "aerospike" {
         EXPIRED_PASSWORD: Status;
         FORBIDDEN_PASSWORD: Status;
         INVALID_CREDENTIAL: Status;
+        EXPIRED_SESSION: Status;
         INVALID_ROLE: Status;
         ROLE_ALREADY_EXISTS: Status;
         INVALID_PRIVILEGE: Status;

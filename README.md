@@ -1,7 +1,7 @@
 # aerospike-typings
 Since typings in [original repo](https://github.com/aerospike/aerospike-client-nodejs/blob/master/typings/index.d.ts) are kinda messy, like why `export const Client: typeof import("client");`, it results in `object` type?? And there also a lot of any =((
 
-Actual for version 5.12.0
+Actual for version 5.13.1
 
 ## Installation
 1. Install package `npm install https://github.com/bit0r1n/aerospike-typings -D`
